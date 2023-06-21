@@ -48,7 +48,14 @@
 #     req_url_query(!!!pars)
 # }
 
+#' Web Portal Routes
+#'
+#' See the web portal API documentation for arguments.
+#' @rdname webportal-routes
+NULL
 
+#' @describeIn webportal-routes List all locations
+#' @export
 GetMapDataAllLocations <- function(...) {
   req <- aq_webportal_req(c("map", "locations"), ...)
   resp <- req |> req_perform()
@@ -59,6 +66,8 @@ GetMapDataAllLocations <- function(...) {
   )
 }
 
+#' @describeIn webportal-routes List timeseries by parameter
+#' @export
 GetMapDataDatasetsByParameter <- function(parameter, ...) {
   req <- aq_webportal_req(NULL, ...) |>
     req_template("map/datasets/{parameter}")
@@ -70,6 +79,8 @@ GetMapDataDatasetsByParameter <- function(parameter, ...) {
   )
 }
 
+#' @describeIn webportal-routes Export a data set
+#' @export
 GetExportDataSet <- function(...){
   req <- aq_webportal_req(path = c("export", "data-set"), ...)
   resp <- req |> req_perform()
@@ -83,7 +94,8 @@ GetExportDataSet <- function(...){
   ret
 }
 
-
+#' @describeIn webportal-routes Export several time-aligned data sets.
+#' @export
 GetExportTimeAligned <- function(
     Datasets, Calendar = NULL, StartTime = NULL, EndTime = NULL, Step = NULL, Timezone = NULL,
     DateRange = c("EntirePeriodOfRecord", "OverlappingPeriodOfRecord", "Today",
@@ -114,6 +126,7 @@ GetExportTimeAligned <- function(
 #'
 #'This function reads from the Web Portal export tab.
 #'https://aquarius.portlandoregon.gov/Export/BulkExport?DateRange=EntirePeriodOfRecord&TimeZone=-8&Calendar=CALENDARYEAR&Interval=PointsAsRecorded&Step=1&ExportFormat=csv&TimeAligned=False&RoundData=False&IncludeGradeCodes=True&IncludeApprovalLevels=True&IncludeQualifiers=True&IncludeInterpolationTypes=True&Datasets[0].DatasetName=Temperature.7DADM%40P0337&Datasets[0].Calculation=Instantaneous&Datasets[0].UnitId=168&_=1686947628225
+#' @export
 GetExport <- function(...){
   req <- aq_webportal_req(NULL, ...) |>
     req_url_path("Export", "DataSet")

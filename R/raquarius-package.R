@@ -14,5 +14,6 @@
 #' @importFrom tidyr nest
 #' @importFrom tidyr pivot_longer
 #' @importFrom tidyr pivot_longer_spec
+#' @importFrom sf st_read
 ## usethis namespace: end
 NULL

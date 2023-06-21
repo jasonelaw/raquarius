@@ -1,3 +1,5 @@
+
+
 # Aquarius ---------------------------------------------------------------------
 aquarius <- function(url, username, password) {
   url  <- if (missing(url))      Sys.getenv("AQUARIUS_URL")
@@ -31,7 +33,7 @@ aquarius_perform <- function(req, extract = NULL, as_tibble = TRUE){
 }
 
 # Web Portal -------------------------------------------------------------------
-webportal <- function() {
+webportal <- function(url, username, password) {
   url  <- if (missing(url))      Sys.getenv("AQUARIUS_WEBPORTAL_URL")
   user <- if (missing(username)) Sys.getenv("AQUARIUS_WEBPORTAL_USER")
   pw   <- if (missing(password)) Sys.getenv("AQUARIUS_WEBPORTAL_PW")
