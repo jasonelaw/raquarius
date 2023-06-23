@@ -8,7 +8,8 @@ aquarius <- function(url, username, password) {
   request(url) |>
     req_error(is_error = \(x) resp_status(x) >= 400, body = \(x) resp_body_json(x)$ResponseStatus$Message) |>
     req_user_agent("https://github.com/jasonelaw/raquarius") |>
-    req_auth_basic(user, pw)
+    req_auth_basic(user, pw) |>
+    req_headers(`Accept-Encoding` = "gzip")
 }
 
 aq_publish_req <- function(path, ...) {
@@ -19,10 +20,13 @@ aq_publish_req <- function(path, ...) {
 }
 
 aquarius_perform <- function(req, extract = NULL, as_tibble = TRUE){
+  cli::cli_alert_info(c("Retrieving response from {.url {req$url}}"))
   resp <- req |>
     req_perform() |>
     resp_body_string() |>
     jsonlite::fromJSON()
+  cli::cli_alert_success("Finished at {lubridate::ymd_hms(resp$ResponseTime, tz = Sys.timezone(), quiet = TRUE)}")
+  cli::cli_alert_info("{resp$Summary}")
   resp$Summary <- NULL
   resp$ResponseTime <- NULL
   resp$ResponseVersion <- NULL

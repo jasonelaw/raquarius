@@ -51,7 +51,9 @@
 #' Web Portal Routes
 #'
 #' See the web portal API documentation for arguments.
-#' @rdname webportal-routes
+#' #' @param ... pass query arguments to route. Please see Web Portal API documentation
+#' for available arguments.
+#' @name webportal-routes
 NULL
 
 #' @describeIn webportal-routes List all locations
