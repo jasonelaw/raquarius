@@ -15,5 +15,6 @@
 #' @importFrom tidyr pivot_longer
 #' @importFrom tidyr pivot_longer_spec
 #' @importFrom sf st_read
+#' @importFrom dplyr group_by
 ## usethis namespace: end
 NULL
