@@ -74,12 +74,24 @@ GetActiveMetersAndCalibrations <- function(){
 }
 
 # Location Requests ------------------------------------------------------------
+#' Functions for Locations
+#'
+#' These functions retrieve location information.
+#' @name location-requests
+#' @param ... pass query arguments to route. Please see Publish API documentation
+#' for available arguments.
+NULL
+
+#' @rdname location-requests
+#' @export
 GetLocationDescriptionList <- function(...) {
   req <- aq_publish_req("GetLocationDescriptionList", ...)
   req |>
     aquarius_perform("LocationDescriptions")
 }
 
+#' @rdname location-requests
+#' @export
 GetLocationData <- function(...) {
   req <- aq_publish_req("GetLocationData", ...)
   resp <- req |>
@@ -115,7 +127,15 @@ GetFieldVisitDataByLocation <- function(...) {
 }
 
 # Time Series Requests ---------------------------------------------------------
+#' Retrieve Locations From Publish API
+#'
+#' These functions retrieve location information.
+#' @param ... pass query arguments to route. Please see Publish API documentation
+#' for available arguments.
+#' @name ts-requests
+NULL
 
+#' @rdname ts-requests
 #' @export
 GetTimeSeriesUniqueIdList <- function(...) {
   req <- aq_publish_req("GetTimeSeriesUniqueIdList", ...)
@@ -123,6 +143,7 @@ GetTimeSeriesUniqueIdList <- function(...) {
     aquarius_perform("TimeSeriesUniqueIds")
 }
 
+#' @rdname ts-requests
 #' @export
 GetTimeSeriesDescriptionListByUniqueId <- function(req, TimeSeriesUniqueIds) {
   ids <- paste0("TimeSeriesUniqueIds=",TimeSeriesUniqueIds, collapse = "&")
@@ -133,6 +154,7 @@ GetTimeSeriesDescriptionListByUniqueId <- function(req, TimeSeriesUniqueIds) {
     aquarius_perform("TimeSeriesDescriptions")
 }
 
+#' @rdname ts-requests
 #' @export
 GetTimeSeriesData <- function(...) {
   req <- aq_publish_req("GetTimeSeriesData", ...)
@@ -148,9 +170,18 @@ GetTimeSeriesData <- function(...) {
   tibble(resp$TimeSeries, Points = points$data)
 }
 
+#' @rdname ts-requests
 #' @export
 GetApprovalsTransactionList <- function(...){
   req <- aq_publish_req("GetApprovalsTransactionList", ...)
   req |>
     aquarius_perform("ApprovalsTransactions")
+}
+
+#' @rdname ts-requests
+#' @export
+GetTimeSeriesCorrectedData <- function(...){
+  req <- aq_publish_req("GetTimeSeriesCorrectedData", ...)
+  req |>
+    aquarius_perform(as_tibble = FALSE)
 }

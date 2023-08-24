@@ -56,3 +56,20 @@ aq_webportal_req <- function(path, ...) {
     req_url_path_append("api", "v1", path) |>
     req_url_query(!!!pars)
 }
+
+webportal_perform <- function(req, extract = NULL, as_tibble = TRUE){
+  cli::cli_alert_info(c("Retrieving response from {.url {req$url}}"))
+  resp <- req |>
+    req_perform() |>
+    resp_body_string() |>
+    jsonlite::fromJSON()
+  cli::cli_alert_success("Finished at {lubridate::ymd_hms(resp$ResponseTime, tz = Sys.timezone(), quiet = TRUE)}")
+  cli::cli_alert_info("{resp$Summary}")
+  resp$Summary <- NULL
+  resp$ResponseTime <- NULL
+  resp$ResponseVersion <- NULL
+  if(as_tibble){
+    resp <- as_tibble(if(is.null(extract)) resp else resp[[extract]])
+  }
+  resp
+}

@@ -108,7 +108,7 @@ GetExportTimeAligned <- function(
     IncludeApprovalLevels = TRUE, IncludeInterpolationTypes = TRUE, ...){
   DateRange = match.arg(DateRange)
   Interval = match.arg(Interval)
-  data <- list2(
+  data <- dots_list(
     Datasets = Datasets,
     Calendar = Calendar,
     StartTime = StartTime,
