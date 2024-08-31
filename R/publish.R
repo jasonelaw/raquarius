@@ -104,7 +104,15 @@ GetLocationData <- function(...) {
 }
 
 # Field Visit Requests ---------------------------------------------------------
+#' Publish API: Functions for Field Visits
+#'
+#' These functions retrieve field visit information via the AQTS Publish API
+#' @name fieldvisit-requests
+#' @param ... pass query arguments to route. Please see Publish API documentation
+#' for available arguments.
+NULL
 
+#' @rdname fieldvisit-requests
 #' @export
 GetFieldVisitDescriptionList <- function(...) {
   req <- aq_publish_req("GetFieldVisitDescriptionList", ...)
@@ -112,18 +120,34 @@ GetFieldVisitDescriptionList <- function(...) {
     aquarius_perform("FieldVisitDescriptions")
 }
 
+#' @rdname fieldvisit-requests
 #' @export
 GetFieldVisitData <- function(...) {
   req <- aq_publish_req("GetFieldVisitData", ...)
-  req |>
-    aquarius_perform("FieldVisitData")
+  ret <- req |>
+    aquarius_perform(as_tibble = FALSE)
+  df <- tibble_row(!!!map_if(ret, is.list, \(x) list(x))) |>
+    mutate(
+      ApprovalLevel = Approval[[1]]$ApprovalLevel,
+      ApprovalLevelDescription = Approval[[1]]$LevelDescription
+    ) |>
+    select(-Approval)
 }
 
+#' @rdname fieldvisit-requests
 #' @export
 GetFieldVisitDataByLocation <- function(...) {
   req <- aq_publish_req("GetFieldVisitDataByLocation", ...)
   req |>
     aquarius_perform("FieldVisitData")
+}
+
+#' @rdname fieldvisit-requests
+#' @export
+GetFieldVisitReadingsByLocation <- function(...) {
+  req <- aq_publish_req("GetFieldVisitReadingsByLocation", ...)
+  req |>
+    aquarius_perform("FieldVisitReadings")
 }
 
 # Time Series Requests ---------------------------------------------------------
@@ -159,14 +183,18 @@ GetTimeSeriesDescriptionListByUniqueId <- function(req, TimeSeriesUniqueIds) {
 GetTimeSeriesData <- function(...) {
   req <- aq_publish_req("GetTimeSeriesData", ...)
   resp <- aquarius_perform(req, as_tibble = FALSE)
-  points <- pivot_longer(
-    data = resp$Points,
-    cols = -Timestamp,
-    names_to = c(".value", "ts"),
-    names_pattern = "([a-zA-Z]+)([0-9]{1,2})"
-  ) |>
-    group_by(ts) |>
-    nest()
+  if(identical(resp$POints, list())) {
+    points <- tibble()
+  } else {
+    points <- pivot_longer(
+      data = resp$Points,
+      cols = -Timestamp,
+      names_to = c(".value", "ts"),
+      names_pattern = "([a-zA-Z]+)([0-9]{1,2})"
+    ) |>
+      group_by(ts) |>
+      nest()
+  }
   tibble(resp$TimeSeries, Points = points$data)
 }
 
