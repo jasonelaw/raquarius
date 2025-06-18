@@ -1,14 +1,28 @@
 Package: raquarius
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Aquarius Time Series API Client For R
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Author: Jason Law <jason.law@portlandoregon.gov>
+Maintainer: Jason Law <jason.law@portlandoregon.gov>
+Description: An interface to the API for Aquarius Time Series. The Publish API is currently mostly supported. In the future, it may support the Provisioning and Acquisition API.
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.2
 URL: https://github.com/jasonelaw/raquarius
 BugReports: https://github.com/jasonelaw/raquarius/issues
+Imports: 
+    cachem,
+    curl,
+    dplyr,
+    openssl,
+    purrr,
+    RcppSimdJson,
+    rlang (>= 1.1.0),
+    tibble,
+    tidyr,
+    vctrs,
+    xml2
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3

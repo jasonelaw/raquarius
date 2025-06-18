@@ -7,22 +7,64 @@
 \alias{GetTimeSeriesData}
 \alias{GetApprovalsTransactionList}
 \alias{GetTimeSeriesCorrectedData}
-\title{Retrieve Locations From Publish API}
+\alias{GetMetadataChangeTransactionList}
+\title{Retrieve Time Series Information From Publish API}
 \usage{
-GetTimeSeriesUniqueIdList(...)
+GetTimeSeriesUniqueIdList(
+  LocationIdentifier,
+  Parameter,
+  ...,
+  .format = TRUE,
+  .perform = TRUE
+)
 
-GetTimeSeriesDescriptionListByUniqueId(req, TimeSeriesUniqueIds)
+GetTimeSeriesDescriptionListByUniqueId(
+  TimeSeriesUniqueIds,
+  .format = TRUE,
+  .perform = TRUE
+)
 
-GetTimeSeriesData(...)
+GetTimeSeriesData(
+  TimeSeriesUniqueIds,
+  QueryFrom,
+  QueryTo,
+  ...,
+  .format = TRUE,
+  .perform = TRUE
+)
 
-GetApprovalsTransactionList(...)
+GetApprovalsTransactionList(
+  TimeSeriesUniqueId,
+  QueryFrom,
+  QueryTo,
+  ...,
+  .format = TRUE,
+  .perform = TRUE
+)
 
-GetTimeSeriesCorrectedData(...)
+GetTimeSeriesCorrectedData(
+  TimeSeriesUniqueId,
+  QueryFrom,
+  QueryTo,
+  Unit,
+  ...,
+  .format = TRUE,
+  .perform = TRUE
+)
+
+GetMetadataChangeTransactionList(
+  TimeSeriesUniqueId,
+  ...,
+  .perform = TRUE,
+  .format = TRUE
+)
 }
 \arguments{
 \item{...}{pass query arguments to route. Please see Publish API documentation
 for available arguments.}
+
+\item{TimeSeriesUniqueId}{a unique id}
 }
 \description{
-These functions retrieve location information.
+These functions retrieve time series information.
 }

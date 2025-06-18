@@ -18,3 +18,5 @@
 #' @importFrom dplyr group_by
 ## usethis namespace: end
 NULL
+
+the <- cachem::cache_mem()

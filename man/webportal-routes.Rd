@@ -2,17 +2,59 @@
 % Please edit documentation in R/webportal.R
 \name{webportal-routes}
 \alias{webportal-routes}
+\alias{GetLatestStatisticValues}
+\alias{GetLatestStatisticValuesByParameter}
+\alias{GetLatestStatisticValuesByStatistic}
 \alias{GetMapDataAllLocations}
 \alias{GetMapDataDatasetsByParameter}
+\alias{GetMapDataLatestStatistics}
+\alias{GetMapDataPeriodicStatistics}
 \alias{GetExportDataSet}
 \alias{GetExportTimeAligned}
-\title{Web Portal Routes}
+\title{See the web portal API documentation for arguments.
+#' @param ... pass query arguments to route. Please see Web Portal API documentation
+for available arguments.}
 \usage{
-GetMapDataAllLocations(...)
+GetLatestStatisticValues(..., .format = TRUE, .perform = TRUE)
 
-GetMapDataDatasetsByParameter(parameter, ...)
+GetLatestStatisticValuesByParameter(
+  parameter,
+  ...,
+  .format = TRUE,
+  .perform = TRUE
+)
 
-GetExportDataSet(...)
+GetLatestStatisticValuesByStatistic(
+  parameter,
+  statistic,
+  ...,
+  .format = TRUE,
+  .perform = TRUE
+)
+
+GetMapDataAllLocations(..., .perform = TRUE, .format = TRUE)
+
+GetMapDataDatasetsByParameter(parameter, ..., .perform = TRUE, .format = TRUE)
+
+GetMapDataLatestStatistics(
+  parameter,
+  statistic,
+  ...,
+  .perform = TRUE,
+  .format = TRUE
+)
+
+GetMapDataPeriodicStatistics(
+  parameter,
+  statistic,
+  interval,
+  date,
+  ...,
+  .perform = TRUE,
+  .format = TRUE
+)
+
+GetExportDataSet(dataset, ..., .perform = TRUE, .format = TRUE)
 
 GetExportTimeAligned(
   Datasets,
@@ -39,9 +81,19 @@ for available arguments.
 }
 \section{Functions}{
 \itemize{
+\item \code{GetLatestStatisticValues()}: Get Latest Statistics
+
+\item \code{GetLatestStatisticValuesByParameter()}: Get Latest Statistics
+
+\item \code{GetLatestStatisticValuesByStatistic()}: Get Latest Statistics
+
 \item \code{GetMapDataAllLocations()}: List all locations
 
-\item \code{GetMapDataDatasetsByParameter()}: List timeseries by parameter
+\item \code{GetMapDataDatasetsByParameter()}: List timeseries by parameter; return sf object
+
+\item \code{GetMapDataLatestStatistics()}: Get latest statistics; return sf object
+
+\item \code{GetMapDataPeriodicStatistics()}: Get periodic statistics; return sf object
 
 \item \code{GetExportDataSet()}: Export a data set
 

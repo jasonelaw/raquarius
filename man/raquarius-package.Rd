@@ -4,9 +4,9 @@
 \name{raquarius-package}
 \alias{raquarius}
 \alias{raquarius-package}
-\title{raquarius: What the Package Does (Title Case)}
+\title{raquarius: Aquarius Time Series API Client For R}
 \description{
-More about what it does (maybe more than one line) Use four spaces when indenting paragraphs within the Description.
+An interface to the API for Aquarius Time Series. The Publish API is currently mostly supported. In the future, it may support the Provisioning and Acquisition API.
 }
 \seealso{
 Useful links:

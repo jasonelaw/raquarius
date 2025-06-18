@@ -6,9 +6,14 @@
 \alias{GetLocationData}
 \title{Functions for Locations}
 \usage{
-GetLocationDescriptionList(...)
+GetLocationDescriptionList(
+  LocationIdentifier,
+  ...,
+  .format = TRUE,
+  .perform = TRUE
+)
 
-GetLocationData(...)
+GetLocationData(LocationIdentifier, ..., .format = TRUE, .perform = TRUE)
 }
 \arguments{
 \item{...}{pass query arguments to route. Please see Publish API documentation
