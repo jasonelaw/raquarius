@@ -89,49 +89,47 @@ convert_time <- function(x, fields) {
 
 # Aquarius Responses -----------------------------------------------------------
 #' @export
-format_response.aqts_response <- function(x, json_key = NULL, ...) {
-  ret <- resp_body_aqts(x, query = json_key)
-  # if(!missing(json_key)) {
-  #   ret <- ret[[json_key]]
-  # }
+format_response.aqts_response <- function(x, ...) {
+  ret <- resp_body_aqts(x, ...)
   as_tibble(ret)
 }
 
 #' @export
-format_response.GetLocationDataResponse <- function(x, ...) {
-  resp <- format_row(resp_body_aqts(x))
-    resp <- resp |>
-      dplyr::mutate(
-        ExtendedAttributes = purrr::map_if(
-          .x = ExtendedAttributes,
-          .p = ~ !rlang::has_name(., "Value"),
-          .f = \(x) dplyr::mutate(x, Value = NA)
-        ),
-        ExtendedAttributes = purrr::map(
-          .x = ExtendedAttributes,
-          .f = ~ tidyr::pivot_wider(.,
-            id_cols = c(),
-            names_from = "Name",
-            values_from = "Value"
-          )
-        )
-      ) |>
-        tidyr::unnest(ExtendedAttributes)
+format_response.parameter <- function(x) {
+  resp_body_aqts(x, query = "/Parameters", max_simplify_lvl = 0L)
+}
+
+#' @export
+format_response.locationdata <- function(x, ...) {
+  ret <- format_row(resp_body_aqts(x))
+  ret <- ret |>
+    dplyr::mutate(
+      ExtendedAttributes = map(
+        .x = ExtendedAttributes,
+        .f = \(x) setNames(as.list(x$value), x$name))
+    ) |>
+    tidyr::unnest_wider(ExtendedAttributes)
+  ret
+}
+
+#' @export
+format_response.fvdata <- function(x, ...) {
+  resp <- resp_body_aqts(x, query = "/FieldVisitData") |>
+    tidyr::hoist(Approval,
+      ApprovalLevel = "ApprovalLevel",
+      ApprovalLevelDescription = "LevelDescription"
+    ) |>
+    dplyr::mutate(InspectionActivity = map(InspectionActivity, format_row)) |>
+    tidyr::unnest(InspectionActivity, names_sep = "")
   resp
 }
 
 #' @export
-format_response.GetFieldVisitDataResponse <- function(x, ...) {
-  resp <- format_row(resp_body_aqts(x)) |>
-    dplyr::mutate(
-      ApprovalLevel = Approval[[1]]$ApprovalLevel,
-      ApprovalLevelDescription = Approval[[1]]$LevelDescription
-    ) |>
-    dplyr::select(-Approval, -DischargeActivities, -CrossSectionSurveyActivity) |>
-    dplyr::mutate(InspectionActivity = map(InspectionActivity, format_row)) |>
-    tidyr::unnest(InspectionActivity)
+format_response.tslist <- function(x, ...) {
+  resp <- resp_body_aqts(x, query = "/TimeSeriesDescriptions")
   resp
 }
+
 
 #' @export
 format_response.GetTimeSeriesDataResponse <- function(x, ...) {
@@ -187,9 +185,13 @@ format_response.GetTimeSeriesCorrectedDataResponse <- function(x, ...) {
 
 # Web Portal Responses ---------------------------------------------------------
 #' @export
-format_response.wp_response <- function(x, query, ...) {
+format_response.wp_response <- function(x, query, is_array = TRUE, ...) {
   ret <- resp_body_wp(x, query = query, ...)
-  ret <- dplyr::bind_rows(map(ret, format_row))
+  if (is_array) {
+    ret <- dplyr::bind_rows(map(ret, format_row))
+  } else {
+    ret <- format_row(ret)
+  }
   ret
 }
 
@@ -333,3 +335,7 @@ format_response.bulk <- function(x) {
   ret
 }
 
+#' @export
+format_response.filter <- function(x) {
+  format_response.wp_response(x, "/filters")
+}

@@ -3,31 +3,31 @@
 \name{foo}
 \alias{foo}
 \title{fast_tbljson.list <- function(response, query = NULL, ...) {
-  foo <- function(response) {
-    RcppSimdJson::fparse(
-      json = resp_body_raw(response),
-      query = query,
-      max_simplify_lvl = 3L
-    )
-  }
-  json <- map(response, foo)
-  ids <- data.frame(document.id = seq_along(json))
-  tbl_json(ids, json)
+foo <- function(response) {
+RcppSimdJson::fparse(
+json = resp_body_raw(response),
+query = query,
+max_simplify_lvl = 3L
+)
+}
+json <- map(response, foo)
+ids <- data.frame(document.id = seq_along(json))
+tbl_json(ids, json)
 }}
 \usage{
 foo(response, query = NULL)
 }
 \description{
 fast_tbljson.list <- function(response, query = NULL, ...) {
-  foo <- function(response) {
-    RcppSimdJson::fparse(
-      json = resp_body_raw(response),
-      query = query,
-      max_simplify_lvl = 3L
-    )
-  }
-  json <- map(response, foo)
-  ids <- data.frame(document.id = seq_along(json))
-  tbl_json(ids, json)
+foo <- function(response) {
+RcppSimdJson::fparse(
+json = resp_body_raw(response),
+query = query,
+max_simplify_lvl = 3L
+)
+}
+json <- map(response, foo)
+ids <- data.frame(document.id = seq_along(json))
+tbl_json(ids, json)
 }
 }

@@ -9,6 +9,17 @@ Datasets <- function(Identifier, Calculation = NULL, Unit = NULL){
   tibble(Identifier, Calculation, Unit)
 }
 
+make_get_env <- function(keyname, signal_error = TRUE) {
+  function() {
+    key <- Sys.getenv(keyname, unset = NA)
+    if (is.na(key) && signal_error) {
+      msg <- glue::glue("{ keyname } key not found, please set { keyname } env var using Sys.setenv or .Rprofile")
+      stop(msg)
+    }
+    key
+  }
+}
+
 process_pars <- function(...) {
   pars <- list2(...)
   pars <- Filter(\(x) !is.null(x), pars)
