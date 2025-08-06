@@ -1,11 +1,11 @@
 Package: raquarius
 Type: Package
 Title: Aquarius Time Series API Client For R
-Version: 0.1.0
+Version: 0.2.0
 Author: Jason Law <jason.law@portlandoregon.gov>
 Maintainer: Jason Law <jason.law@portlandoregon.gov>
 Description: An interface to the API for Aquarius Time Series. The Publish API is currently mostly supported. In the future, it may support the Provisioning and Acquisition API.
-License: What license is it under?
+License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.3.2
