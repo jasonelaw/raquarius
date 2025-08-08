@@ -15,6 +15,7 @@ Imports:
     cachem,
     curl,
     dplyr,
+    httr2,
     jsonlite,
     openssl,
     purrr,
