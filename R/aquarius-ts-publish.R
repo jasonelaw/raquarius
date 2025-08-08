@@ -8,12 +8,16 @@ GetSessionPublickey <- function(){
 
 PostSession <- function(username, password = askpass::askpass()) {
   pubkey <- GetSessionPublickey()
-  pw <- openssl::rsa_encrypt(charToRaw(password), pubkey, TRUE)
+  if(!is.raw(password)) {
+    password <- openssl::rsa_encrypt(charToRaw(password), pubkey, TRUE)
+  }
   token <- aquarius(operation = "session", api = "publish", auth = FALSE) |>
-    req_body_json(data = list(Username = username, EncryptedPassword = pw)) |>
+    req_body_json(
+      data = list(Username = username, EncryptedPassword = password)
+    ) |>
     req_perform() |>
     resp_body_string()
-  token <- aq_token(token)
+  token <- new_aqtoken(token)
   token
 }
 

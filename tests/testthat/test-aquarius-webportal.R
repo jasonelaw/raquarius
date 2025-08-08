@@ -1,7 +1,10 @@
 test_that("GetLocation returns the right objects and completes successfully", {
   skip_if_webportal_offline()
 
-  request <- GetLocation(location = "HYDRA-160", .perform = FALSE, .format = FALSE)
+  request <- GetLocation(
+    location = "HYDRA-160",
+    .perform = FALSE, .format = FALSE
+  )
   expect_s3_class(request, "httr2_request")
   expect_s3_class(request, "wp_request")
   expect_s3_class(request, "location")
@@ -11,11 +14,17 @@ test_that("GetLocation returns the right objects and completes successfully", {
     regexp = "argument \"location\" is missing"
   )
 
-  response <- GetLocation(location = "HYDRA-160", .perform = TRUE, .format = FALSE)
+  response <- GetLocation(
+    location = "HYDRA-160",
+    .perform = TRUE, .format = FALSE
+  )
   expect_s3_class(response, "httr2_response")
   expect_identical(httr2::resp_status(response), 200L)
 
-  result <- GetLocation(location = "HYDRA-160", .perform = TRUE, .format = TRUE)
+  result <- GetLocation(
+    location = "HYDRA-160",
+    .perform = TRUE, .format = TRUE
+  )
   expect_s3_class(result, "data.frame")
 })
 
@@ -71,7 +80,10 @@ test_that("GetMapDataAllLocations returns the right objects and completes succes
 test_that("GetMapDataDatasetsByParameter returns the right objects and completes successfully", {
   skip_if_webportal_offline()
 
-  request <- GetMapDataDatasetsByParameter(parameter = "Precip Increm", .perform = FALSE, .format = FALSE)
+  request <- GetMapDataDatasetsByParameter(
+    parameter = "Precip Increm",
+    .perform = FALSE, .format = FALSE
+  )
   expect_s3_class(request, "httr2_request")
   expect_s3_class(request, "wp_request")
   expect_s3_class(request, "geojson")
@@ -81,11 +93,17 @@ test_that("GetMapDataDatasetsByParameter returns the right objects and completes
     regexp = "argument \"parameter\" is missing"
   )
 
-  response <- GetMapDataDatasetsByParameter(parameter = "Precip Increm", .perform = TRUE, .format = FALSE)
+  response <- GetMapDataDatasetsByParameter(
+    parameter = "Precip Increm",
+    .perform = TRUE, .format = FALSE
+  )
   expect_s3_class(response, "httr2_response")
   expect_identical(httr2::resp_status(response), 200L)
 
-  result <- GetMapDataDatasetsByParameter(parameter = "Precip Increm", .perform = TRUE, .format = TRUE)
+  result <- GetMapDataDatasetsByParameter(
+    parameter = "Precip Increm",
+    .perform = TRUE, .format = TRUE
+  )
   expect_s3_class(result, "data.frame")
   expect_s3_class(result, "sf")
 })
@@ -93,7 +111,11 @@ test_that("GetMapDataDatasetsByParameter returns the right objects and completes
 test_that("GetMapDataLatestStatistics returns the right objects and completes successfully", {
   skip_if_webportal_offline()
 
-  request <- GetMapDataLatestStatistics(parameter = "Precip Increm", statistic = "CALENDAR_1DAY", .perform = FALSE, .format = FALSE)
+  request <- GetMapDataLatestStatistics(
+    parameter = "Precip Increm",
+    statistic = "CALENDAR_1DAY",
+    .perform = FALSE, .format = FALSE
+  )
   expect_s3_class(request, "httr2_request")
   expect_s3_class(request, "wp_request")
   expect_s3_class(request, "geojson")
@@ -103,15 +125,29 @@ test_that("GetMapDataLatestStatistics returns the right objects and completes su
     regexp = "argument \"parameter\" is missing"
   )
   expect_error(
-    GetMapDataLatestStatistics(parameter = "Precip Increm", .perform = FALSE, .format = FALSE),
+    GetMapDataLatestStatistics(
+      parameter = "Precip Increm",
+      .perform = FALSE,
+      .format = FALSE
+    ),
     regexp = "argument \"statistic\" is missing"
   )
 
-  response <- GetMapDataLatestStatistics(parameter = "Precip Increm", statistic = "CALENDAR_1DAY", .perform = TRUE, .format = FALSE)
+  response <- GetMapDataLatestStatistics(
+    parameter = "Precip Increm",
+    statistic = "CALENDAR_1DAY",
+    .perform = TRUE,
+    .format = FALSE
+  )
   expect_s3_class(response, "httr2_response")
   expect_identical(httr2::resp_status(response), 200L)
 
-  result <- GetMapDataLatestStatistics(parameter = "Precip Increm", statistic = "CALENDAR_1DAY", .perform = TRUE, .format = TRUE)
+  result <- GetMapDataLatestStatistics(
+    parameter = "Precip Increm",
+    statistic = "CALENDAR_1DAY",
+    .perform = TRUE,
+    .format = TRUE
+  )
   expect_s3_class(result, "data.frame")
   expect_s3_class(result, "sf")
 })

@@ -22,6 +22,6 @@ Creates a S3 object of class \verb{<aq_token>} representing a token
 returned from POST /publish/v2/session.
 }
 \examples{
-aq_token("abcdef")
-aq_token("abcdef", expires_in = 3600)
+new_aqtoken("abcdef")
+new_aqtoken("abcdef", expires_in = 3600)
 }

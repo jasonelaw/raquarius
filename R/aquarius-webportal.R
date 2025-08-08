@@ -273,7 +273,7 @@ GetMapDataAllLocations <- function(..., .perform = TRUE, .format = TRUE) {
 #' @describeIn webportal-routes List timeseries by parameter; return sf object
 #' @export
 GetMapDataDatasetsByParameter <- function(parameter, ..., .perform = TRUE, .format = TRUE) {
-  parameter <- URLencode(parameter)
+  parameter <- identity(parameter)
   ret <- webportal(..., class = "geojson") |>
     req_template("map/datasets/{parameter}")
   if (.perform) {
@@ -288,8 +288,8 @@ GetMapDataDatasetsByParameter <- function(parameter, ..., .perform = TRUE, .form
 #' @describeIn webportal-routes Get latest statistics; return sf object
 #' @export
 GetMapDataLatestStatistics <- function(parameter, statistic, ..., .perform = TRUE, .format = TRUE) {
-  parameter <- URLencode(parameter)
-  statistic <- URLencode(statistic)
+  parameter <- identity(parameter)
+  statistic <- identity(statistic)
   ret <- webportal(..., class = "geojson") |>
     req_template("/map/statistics/latest/{parameter}/{statistic}")
   if (.perform) {
@@ -304,10 +304,10 @@ GetMapDataLatestStatistics <- function(parameter, statistic, ..., .perform = TRU
 #' @describeIn webportal-routes Get periodic statistics; return sf object
 #' @export
 GetMapDataPeriodicStatistics <- function(parameter, statistic, interval, date, ..., .perform = TRUE, .format = TRUE) {
-  parameter <- URLencode(parameter)
-  statistic <- URLencode(statistic)
-  interval <- URLencode(interval)
-  date <- URLencode(date)
+  parameter <- identity(parameter)
+  statistic <- identity(statistic)
+  interval  <- identity(interval)
+  date      <- identity(date)
   ret <- webportal(..., class = "geojson") |>
     req_template("/map/statistics/periodic/{parameter}/{statistic}/{interval}/{date}")
   if (.perform) {
