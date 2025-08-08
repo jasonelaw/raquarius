@@ -10,8 +10,8 @@
 #' @return An X-Authentication-Token for Aquarius Time Series: an S3 list with class `aq_token`.
 #' @export
 #' @examples
-#' aq_token("abcdef")
-#' aq_token("abcdef", expires_in = 3600)
+#' new_aqtoken("abcdef")
+#' new_aqtoken("abcdef", expires_in = 3600)
 new_aqtoken <- function(access_token, expires_in = 3600, .date = Sys.time()) {
 
   check_string(access_token)
@@ -29,12 +29,12 @@ new_aqtoken <- function(access_token, expires_in = 3600, .date = Sys.time()) {
       token = access_token,
       expires_at = expires_at
     )),
-    class = "aq_token"
+    class = "aqtoken"
   )
 }
 
 #' @export
-print.aq_token <- function(x, ...) {
+print.aqtoken <- function(x, ...) {
   oldx <- x
   x$expires_at <- format(as.POSIXct(x$expires_at))
   cli::cli_text(cli::style_bold("<", paste(class(x), collapse = "/"), ">"))
