@@ -121,6 +121,13 @@ aqts_perform_parallel <- function(x, fun, format = TRUE) {
   reqs
 }
 
+new_aqts_request <- function(x, operation, api, class = NULL) {
+  stopifnot(inherits(x, "httr2_request"))
+  attr(req, "operation") <- operation
+  attr(req, "api") <- api
+  structure(req, class = c(class, "aqts_request", class(req)))
+}
+
 new_aqts_response <- function(x, class = NULL) {
   stopifnot(inherits(x, "httr2_response"))
   new_class <- c(class, "aqts_response", class(x))

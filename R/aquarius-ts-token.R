@@ -12,7 +12,7 @@
 #' @examples
 #' aq_token("abcdef")
 #' aq_token("abcdef", expires_in = 3600)
-aq_token <- function(access_token, expires_in = 3600, .date = Sys.time()) {
+new_aqtoken <- function(access_token, expires_in = 3600, .date = Sys.time()) {
 
   check_string(access_token)
   check_number_whole(expires_in, allow_null = FALSE)
@@ -54,6 +54,7 @@ unix_time <- function() {
   as.integer(Sys.time())
 }
 
+# token cache, `the`, is initialized in raquarius-package.R from cachem::cache_mem()
 cache_token <- function(token) {
   the$set(hash(aq_get_url()), token)
 }
