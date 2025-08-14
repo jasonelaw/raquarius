@@ -323,8 +323,8 @@ GetMapDataPeriodicStatistics <- function(parameter, statistic, interval, date, .
 
 #' @describeIn webportal-routes Export a data set
 #' @export
-GetExportDataSet <- function(dataset, ..., .perform = TRUE, .format = TRUE) {
-  ret <- webportal(dataset = dataset, ..., path = c("export", "data-set"), class = "export")
+GetExportDataSet <- function(DataSet, ..., .perform = TRUE, .format = TRUE) {
+  ret <- webportal(DataSet = DataSet, ..., path = c("export", "data-set"), class = "export")
   if (.perform) {
     ret <- req_perform_wp(ret)
     if (.format){
