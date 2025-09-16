@@ -132,7 +132,7 @@ format_response.tslist <- function(x, ...) {
 
 
 #' @export
-format_response.GetTimeSeriesDataResponse <- function(x, ...) {
+format_response.tsdata <- function(x, ...) {
   x <- resp_body_aqts(x)
   if(identical(x$Points, list())) {
     points <- list(data = list(tibble::tibble()))

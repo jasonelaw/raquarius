@@ -330,18 +330,16 @@ NULL
 
 #' @rdname ts-requests
 #' @export
-GetTimeSeriesUniqueIdList <- function(LocationIdentifier, Parameter, ..., .format = TRUE, .perform = TRUE){
-  args <- rlang::list2(...,
-    LocationIdentifier = rlang::maybe_missing(LocationIdentifier),
-    Parameter          = rlang::maybe_missing(Parameter)
+GetTimeSeriesUniqueIdList <- function(LocationIdentifier = NULL, Parameter = NULL, ..., .format = TRUE, .perform = TRUE){
+  ret <- aquarius(...,
+    LocationIdentifier = LocationIdentifier,
+    Parameter = Parameter,
+    operation = "GetTimeSeriesUniqueIdList"
   )
-  args <- Filter(Negate(rlang::is_missing), args)
-  ret <- aquarius("GetTimeSeriesUniqueIdList") |>
-    req_url_query(!!!args)
   if (.perform) {
-    ret <- new_aqts_response(httr2::req_perform(ret))
+    ret <- req_perform_aqts(ret)
     if (.format){
-      ret <- format_response(ret, "/TimeSeriesUniqueIds")
+      ret <- format_response(ret)
     }
   }
   ret
@@ -350,10 +348,9 @@ GetTimeSeriesUniqueIdList <- function(LocationIdentifier, Parameter, ..., .forma
 #' @rdname ts-requests
 #' @export
 GetTimeSeriesDescriptionList <- function(LocationIdentifer = NULL, Parameter = NULL, ..., .format = TRUE, .perform = TRUE){
-  ret <- aquarius(
+  ret <- aquarius(...,
     LocationIdentifier = LocationIdentifer,
     Parameter = Parameter,
-    ...,
     operation = "GetTimeSeriesDescriptionList",
     class = "tslist"
   )
@@ -369,10 +366,13 @@ GetTimeSeriesDescriptionList <- function(LocationIdentifer = NULL, Parameter = N
 #' @rdname ts-requests
 #' @export
  GetTimeSeriesDescriptionListByUniqueId <- function(TimeSeriesUniqueIds, .format = TRUE, .perform = TRUE){
-  ret <- aquarius("GetTimeSeriesDescriptionListByUniqueId", method = "POST") |>
+  ret <- aquarius(
+    operation = "GetTimeSeriesDescriptionListByUniqueId",
+    class = "tslist"
+  ) |>
     req_body_json(data = list(TimeSeriesUniqueIds = TimeSeriesUniqueIds))
   if (.perform) {
-    ret <- new_aqts_response(httr2::req_perform(ret))
+    ret <- req_perform_aqts(ret)
     if (.format){
       ret <- format_response(ret, "/TimeSeriesDescriptions")
     }
@@ -391,17 +391,18 @@ GetTimeSeriesDescriptionList <- function(LocationIdentifer = NULL, Parameter = N
 
 #' @rdname ts-requests
 #' @export
-GetTimeSeriesData <- function(TimeSeriesUniqueIds, QueryFrom, QueryTo, ..., .format = TRUE, .perform = TRUE){
-  args <- list2(...,
+GetTimeSeriesData <- function(TimeSeriesUniqueIds, QueryFrom = NULL, QueryTo = NULL, ..., .format = TRUE, .perform = TRUE){
+  ret <- aquarius(...,
     TimeSeriesUniqueIds = TimeSeriesUniqueIds,
-    QueryFrom           = rlang::maybe_missing(QueryFrom),
-    QueryTo             = rlang::maybe_missing(QueryTo)
+    QueryFrom = QueryFrom,
+    QueryTo = QueryTo,
+    operation = "GetTimeSeriesData",
+    class = "tsdata",
+    .multi = "explode"
+
   )
-  args <- Filter(Negate(rlang::is_missing), args)
-  ret <- aquarius("GetTimeSeriesData") |>
-    req_url_query(!!!args, .multi = "explode")
   if (.perform) {
-    ret <- new_aqts_response(httr2::req_perform(ret))
+    ret <- req_perform_aqts(ret)
     if (.format){
       ret <- format_response(ret)
     }
@@ -411,17 +412,15 @@ GetTimeSeriesData <- function(TimeSeriesUniqueIds, QueryFrom, QueryTo, ..., .for
 
 #' @rdname ts-requests
 #' @export
-GetApprovalsTransactionList <- function(TimeSeriesUniqueId, QueryFrom, QueryTo, ..., .format = TRUE, .perform = TRUE){
-  args <- rlang::list2(...,
+GetApprovalsTransactionList <- function(TimeSeriesUniqueId = NULL, QueryFrom, QueryTo, ..., .format = TRUE, .perform = TRUE){
+  ret <- aquarius(...,
     TimeSeriesUniqueId = TimeSeriesUniqueId,
-    QueryFrom = rlang::maybe_missing(QueryFrom),
-    QueryTo = rlang::maybe_missing(QueryTo)
+    QueryFrom = QueryFrom,
+    QueryTo   = QueryTo,
+    operation = "GetApprovalsTransactionList"
   )
-  args <- Filter(Negate(rlang::is_missing), args)
-  ret <- aquarius("GetApprovalsTransactionList") |>
-    req_url_query(!!!args)
   if (.perform) {
-    ret <- new_aqts_response(httr2::req_perform(ret))
+    ret <- req_perform_aqts(ret)
     if (.format){
       ret <- format_response(ret, "/ApprovalsTransactions")
     }

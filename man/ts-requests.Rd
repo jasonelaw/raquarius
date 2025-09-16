@@ -12,8 +12,8 @@
 \title{Retrieve Time Series Information From Publish API}
 \usage{
 GetTimeSeriesUniqueIdList(
-  LocationIdentifier,
-  Parameter,
+  LocationIdentifier = NULL,
+  Parameter = NULL,
   ...,
   .format = TRUE,
   .perform = TRUE

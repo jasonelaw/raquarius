@@ -11,7 +11,8 @@ aquarius <- function(...,
     api = c("publish", "acquisition", "provisioning"),
     url = aq_get_url(),
     #method = c("GET", "POST", "DELETE", "PUT"),
-    auth = TRUE
+    auth = TRUE,
+    .multi = "error"
 ) {
   verbose <- getOption("raquarius.verbose")
   api    <- match.arg(api)
@@ -86,7 +87,7 @@ resp_body_aqts <- function(resp, query = NULL, max_simplify_lvl = 0L) {
     max_simplify_lvl = max_simplify_lvl
   )
   ret[c("Summary", "ResponseTime", "ResponseVersion")] <- NULL
-  ret
+  as_tibble(ret)
 }
 
 aqts_resp_inform <- function(resp) {

@@ -91,7 +91,7 @@ GetMapDataPeriodicStatistics(
   .format = TRUE
 )
 
-GetExportDataSet(dataset, ..., .perform = TRUE, .format = TRUE)
+GetExportDataSet(DataSet, ..., .perform = TRUE, .format = TRUE)
 
 GetExportTimeAligned(
   Datasets,

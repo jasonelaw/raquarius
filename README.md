@@ -40,7 +40,9 @@ locs  <- GetMapDataAllLocations()
 dsets <- GetMapDataDatasetsByParameter("Temperature")
 ts    <- GetExportDataSet(DataSet = dsets$dataSetIdentifier[1])
 
-(DS <- Datasets(sets$dataSetIdentifier[1:5], Calculation = "Maximum"))
-resp <- GetExportTimeAligned(Datasets = DS, Interval = "Monthly", DateRange = "Years1")
+(DS <- Datasets(dsets$dataSetIdentifier[1:5], Calculation = "Maximum"))
+
+resp <- GetExportBulk(Datasets = DS, Interval = "Monthly", DateRange = "Years1")
+
 ```
 
