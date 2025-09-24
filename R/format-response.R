@@ -106,7 +106,7 @@ format_response.locationdata <- function(x, ...) {
     dplyr::mutate(
       ExtendedAttributes = map(
         .x = ExtendedAttributes,
-        .f = \(x) setNames(as.list(x$value), x$name))
+        .f = \(x) setNames(as.list(as.character(x$Value)), x$Name))
     ) |>
     tidyr::unnest_wider(ExtendedAttributes)
   ret
@@ -195,68 +195,46 @@ format_response.wp_response <- function(x, query, is_array = TRUE, ...) {
   ret
 }
 
-#' @export
-format_response.location <- function(x) {
-  ret <- resp_body_wp(x, query = "/location")
-  ret <- format_row(ret)
-  ret |>
-    dplyr::mutate(
-      extendedAttributes = map(extendedAttributes, dplyr::bind_rows),
-      extendedAttributes = purrr::map_if(
-        .x = extendedAttributes,
-        .p = ~ !rlang::has_name(., "value"),
-        .f = \(x) dplyr::mutate(x, value = NA)
-      ),
-      extendedAttributes = purrr::map(
-        .x = extendedAttributes,
-        .f = ~ tidyr::pivot_wider(.,
-          id_cols = c(),
-          names_from = "name",
-          values_from = "value"
-        )
-      )
-    ) |>
-    tidyr::hoist(elevationUnit, elevationUnitSymbol = "symbol") |>
-    dplyr::select(-elevationUnit) |>
-    tidyr::unnest(extendedAttributes)
-}
+# format_response.location <- function(x, multiple = FALSE) {
+#   ret <- resp_body_wp(x, query = if(multiple) "/locations" else "/location", max_simplify_lvl = 0L)
+#   ret <- format_row(ret)
+#   ret |>
+#     dplyr::mutate(
+#       extendedAttributes = map(extendedAttributes, dplyr::bind_rows),
+#       extendedAttributes = purrr::map_if(
+#         .x = extendedAttributes,
+#         .p = ~ !rlang::has_name(., "value"),
+#         .f = \(x) dplyr::mutate(x, value = NA)
+#       ),
+#       extendedAttributes = purrr::map(
+#         .x = extendedAttributes,
+#         .f = ~ tidyr::pivot_wider(.,
+#           id_cols = c(),
+#           names_from = "name",
+#           values_from = "value"
+#         )
+#       )
+#     ) |>
+#     tidyr::hoist(elevationUnit, elevationUnitSymbol = "symbol") |>
+#     dplyr::select(-elevationUnit) |>
+#     tidyr::unnest(extendedAttributes)
+# }
 
 #' @export
-format_response.locations <- function(x) {
-  ret <- resp_body_wp(x, query = "/locations", max_simplify_lvl = 0L)
+format_response.location <- function(x, multiple = FALSE) {
+  ret <- resp_body_wp(x, query = if(multiple) "/locations" else "/location", max_simplify_lvl = 0L)
+  if(!multiple) {
+    ret <- format_row(ret)
+  }
   ret <- ret |>
     dplyr::mutate(
       extendedAttributes = map(
         .x = extendedAttributes,
-        .f = \(x) setNames(as.list(x$value), x$name))
+        .f = \(x) as_tibble(setNames(as.list(as.character(x$value)), x$name)))
     ) |>
-    tidyr::unnest_wider(extendedAttributes) |>
+    tidyr::unnest(extendedAttributes) |>
     tidyr::hoist(elevationUnit, elevationUnitSymbol = "symbol") |>
     dplyr::select(-elevationUnit)
-
-  #
-  # ret <- dplyr::bind_rows(map(ret, format_row))
-  # fix_value <- function(x) {
-  #   ret <- format_row(x)
-  #   if(rlang::has_name(ret, name = "value")) {
-  #     ret$value <- as.character(ret$value)
-  #   }
-  #   ret
-  # }
-  # ret$extendedAttributes <- map(
-  #   .x = ret$extendedAttributes,
-  #   .f = \(x) dplyr::bind_rows(map(x, fix_value))
-  # )
-  # eattr <- tidyr::pivot_wider(
-  #   data = dplyr::bind_rows(ret$extendedAttributes, .id = "row"),
-  #   id_cols = "row",
-  #   names_from = "name",
-  #   values_from = "value"
-  # )
-  # ret <- dplyr::bind_cols(ret, eattr)
-  # ret <- ret |>
-  #    tidyr::hoist(elevationUnit, elevationUnitSymbol = "symbol") |>
-  #    dplyr::select(-elevationUnit)
   type.convert(ret, as.is = TRUE)
 }
 
@@ -307,7 +285,9 @@ format_response.export <- function(x) {
 
   ts <- RcppSimdJson::fparse(resp_body_raw(x))
   ret <- format_row(c(ts$dataset, ts$timeRange))
-  ret <- convert_time(ret, c("startTime", "endTime"))
+  if (has_name(ret, "startTime") & has_name(ret, "endTime")){
+    ret <- convert_time(ret, c("startTime", "endTime"))
+  }
   ret <- tibble::tibble_row(ret, timeseries = list(tibble::as_tibble(ts$points)))
 
   ret <- ret |>

@@ -35,15 +35,15 @@ GetTimeSeriesDescriptionListByUniqueId(
 
 GetTimeSeriesData(
   TimeSeriesUniqueIds,
-  QueryFrom,
-  QueryTo,
+  QueryFrom = NULL,
+  QueryTo = NULL,
   ...,
   .format = TRUE,
   .perform = TRUE
 )
 
 GetApprovalsTransactionList(
-  TimeSeriesUniqueId,
+  TimeSeriesUniqueId = NULL,
   QueryFrom,
   QueryTo,
   ...,

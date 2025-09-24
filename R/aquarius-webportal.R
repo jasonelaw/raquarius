@@ -134,7 +134,7 @@ GetLocation <- function(location, ..., .format = TRUE, .perform = TRUE) {
 #' @describeIn webportal-routes Get locations
 #' @export
 GetLocations <- function(..., .format = TRUE, .perform = TRUE) {
-  ret <- webportal(..., path = "locations", class = "locations")
+  ret <- webportal(..., path = "locations", class = "location")
   if (.perform) {
     ret <- req_perform_wp(ret)
     if (.format){
@@ -357,22 +357,54 @@ GetExportPeriodicStatistic <- function(
   ret
 }
 
-GetExportSeasonalStatistic <- NULL
+#' @describeIn webportal-routes Export seasonal statistics
+#' @export
+GetExportSeasonalStatistic <- function(
+    dataset = NULL,
+    interval = NULL,
+    statistic = NULL,
+    referenceperiod = NULL,
+    ...,
+    .perform = TRUE,
+    .format = TRUE
+) {
+  ret <- webportal(
+    dataset = dataset, interval = interval, statistic = statistic,
+    referenceperiod = referenceperiod, ...,
+    path = c("export", "seasonal-statistic"), class = "export"
+  )
+  if (.perform) {
+    ret <- req_perform_wp(ret)
+    if (.format){
+      ret <- format_response(ret)
+    }
+  }
+}
 
 #' @describeIn webportal-routes Export several time-aligned data sets.
 #' @export
 GetExportTimeAligned <- function(
-    Datasets, Calendar = NULL, StartTime = NULL, EndTime = NULL, Step = NULL, Timezone = NULL,
-    DateRange = c(
-      "EntirePeriodOfRecord", "OverlappingPeriodOfRecord", "Today",
-      "Days7", "Days30", "Months6", "Years1"
-    ),
-    Interval = c(
-      "PointsAsRecorded", "Minutely", "Hourly", "Daily", "Monthly",
-      "Yearly"
-    ),
-    RoundData = FALSE, IncludeGradeCodes = TRUE, IncludeQualifiers = TRUE,
-    IncludeApprovalLevels = TRUE, IncludeInterpolationTypes = TRUE, ...) {
+  Datasets,
+  Calendar = NULL,
+  StartTime = NULL,
+  EndTime = NULL,
+  Step = NULL,
+  Timezone = NULL,
+  DateRange = c(
+    "EntirePeriodOfRecord", "OverlappingPeriodOfRecord", "Today",
+    "Days7", "Days30", "Months6", "Years1"
+  ),
+  Interval = c(
+    "PointsAsRecorded", "Minutely", "Hourly", "Daily", "Monthly",
+    "Yearly"
+  ),
+  RoundData = FALSE,
+  IncludeGradeCodes = TRUE,
+  IncludeQualifiers = TRUE,
+  IncludeApprovalLevels = TRUE,
+  IncludeInterpolationTypes = TRUE,
+  ...
+) {
   DateRange <- match.arg(DateRange)
   Interval <- match.arg(Interval)
   data <- dots_list(

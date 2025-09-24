@@ -87,7 +87,7 @@ resp_body_aqts <- function(resp, query = NULL, max_simplify_lvl = 0L) {
     max_simplify_lvl = max_simplify_lvl
   )
   ret[c("Summary", "ResponseTime", "ResponseVersion")] <- NULL
-  as_tibble(ret)
+  ret
 }
 
 aqts_resp_inform <- function(resp) {

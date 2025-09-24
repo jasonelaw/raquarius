@@ -17,6 +17,7 @@
 \alias{GetMapDataLatestStatistics}
 \alias{GetMapDataPeriodicStatistics}
 \alias{GetExportDataSet}
+\alias{GetExportSeasonalStatistic}
 \alias{GetExportTimeAligned}
 \alias{GetExportBulk}
 \title{Web Portal API}
@@ -93,6 +94,16 @@ GetMapDataPeriodicStatistics(
 
 GetExportDataSet(DataSet, ..., .perform = TRUE, .format = TRUE)
 
+GetExportSeasonalStatistic(
+  dataset = NULL,
+  interval = NULL,
+  statistic = NULL,
+  referenceperiod = NULL,
+  ...,
+  .perform = TRUE,
+  .format = TRUE
+)
+
 GetExportTimeAligned(
   Datasets,
   Calendar = NULL,
@@ -157,6 +168,8 @@ See the web portal API documentation for arguments.
 \item \code{GetMapDataPeriodicStatistics()}: Get periodic statistics; return sf object
 
 \item \code{GetExportDataSet()}: Export a data set
+
+\item \code{GetExportSeasonalStatistic()}: Export seasonal statistics
 
 \item \code{GetExportTimeAligned()}: Export several time-aligned data sets.
 
