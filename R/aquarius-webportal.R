@@ -125,7 +125,7 @@ GetLocation <- function(location, ..., .format = TRUE, .perform = TRUE) {
     if (.perform) {
       ret <- req_perform_wp(ret)
       if (.format){
-        ret <- format_response(ret)
+        ret <- format_response(ret, multipe = FALSE)
       }
     }
   ret
@@ -138,7 +138,7 @@ GetLocations <- function(..., .format = TRUE, .perform = TRUE) {
   if (.perform) {
     ret <- req_perform_wp(ret)
     if (.format){
-      ret <- format_response(ret)
+      ret <- format_response(ret, multiple = TRUE)
     }
   }
   ret
