@@ -25,7 +25,8 @@ Imports:
     tibble,
     tidyr,
     vctrs,
-    xml2
+    xml2,
+    lubridate
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3

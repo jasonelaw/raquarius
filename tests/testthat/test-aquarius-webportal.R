@@ -34,7 +34,7 @@ test_that("GetLocations returns the right objects and completes successfully", {
   request <- GetLocations(.perform = FALSE, .format = FALSE)
   expect_s3_class(request, "httr2_request")
   expect_s3_class(request, "wp_request")
-  expect_s3_class(request, "locations")
+  expect_s3_class(request, "location")
 
   response <- GetLocations(.perform = TRUE, .format = FALSE)
   expect_s3_class(response, "httr2_response")

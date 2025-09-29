@@ -125,7 +125,7 @@ GetLocation <- function(location, ..., .format = TRUE, .perform = TRUE) {
     if (.perform) {
       ret <- req_perform_wp(ret)
       if (.format){
-        ret <- format_response(ret, multipe = FALSE)
+        ret <- format_response(ret, multiple = FALSE)
       }
     }
   ret
@@ -187,7 +187,7 @@ GetLatestStatistic <- function(parameter = NULL, statistic = NULL, ..., .format 
     ret <- req_perform_wp(ret)
     if (.format){
       ret <- format_response(ret, "/latestStatistic", is_array = FALSE) |>
-        unnest_wider(unit, names_sep = "")
+        tidyr::unnest_wider(unit, names_sep = "")
     }
   }
   ret
@@ -196,14 +196,13 @@ GetLatestStatistic <- function(parameter = NULL, statistic = NULL, ..., .format 
 #' @describeIn webportal-routes Get Latest Statistics
 #' @export
 GetLatestStatisticsByParameter <- function(parameter = NULL, ..., .format = TRUE, .perform = TRUE) {
-  parameter <- URLencode(parameter)
   ret <- webportal(..., class = "lateststatisticdef") |>
     req_template("statistics/latest/{parameter}")
   if (.perform) {
     ret <- req_perform_wp(ret)
     if (.format){
       ret <- format_response(ret, "/latestStatistics") |>
-        unnest_wider(unit, names_sep = "")
+        tidyr::unnest_wider(unit, names_sep = "")
     }
   }
   ret
@@ -227,7 +226,6 @@ GetLatestStatisticValues <- function(..., .format = TRUE, .perform = TRUE) {
 #' @describeIn webportal-routes Get Latest Statistics
 #' @export
 GetLatestStatisticValuesByParameter <- function(parameter, ..., .format = TRUE, .perform = TRUE) {
-  parameter <- URLencode(parameter)
   ret <- webportal(..., class = "lateststatistic") |>
     req_template("statistic-values/latest/{parameter}")
   if (.perform) {
@@ -242,8 +240,6 @@ GetLatestStatisticValuesByParameter <- function(parameter, ..., .format = TRUE, 
 #' @describeIn webportal-routes Get Latest Statistics
 #' @export
 GetLatestStatisticValuesByStatistic <- function(parameter, statistic, ..., .format = TRUE, .perform = TRUE) {
-  parameter <- URLencode(parameter)
-  statistic <- URLencode(statistic)
   ret <- webportal(..., class = "lateststatistic") |>
     req_template("statistic-values/latest/{parameter}/{statistic}")
   if (.perform) {

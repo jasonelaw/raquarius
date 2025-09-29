@@ -17,27 +17,27 @@ fast_tbljson <- function (response, query = NULL, ...)
   tbl_json(ids, json)
 }
 
-#'
-#' fast_tbljson.list <- function(response, query = NULL, ...) {
-#'   foo <- function(response) {
-#'     RcppSimdJson::fparse(
-#'       json = resp_body_raw(response),
-#'       query = query,
-#'       max_simplify_lvl = 3L
-#'     )
-#'   }
-#'   json <- map(response, foo)
-#'   ids <- data.frame(document.id = seq_along(json))
-#'   tbl_json(ids, json)
-#' }
-  foo <- function(response, query = NULL) {
-    ret <- RcppSimdJson::fparse(
-      json = resp_body_raw(response),
-      query = query,
-      max_simplify_lvl = 3L
-    )
-    list(ret)
-  }
+#
+# fast_tbljson.list <- function(response, query = NULL, ...) {
+#   foo <- function(response) {
+#     RcppSimdJson::fparse(
+#       json = resp_body_raw(response),
+#       query = query,
+#       max_simplify_lvl = 3L
+#     )
+#   }
+#   json <- map(response, foo)
+#   ids <- data.frame(document.id = seq_along(json))
+#   tbl_json(ids, json)
+# }
+  # foo <- function(response, query = NULL) {
+  #   ret <- RcppSimdJson::fparse(
+  #     json = resp_body_raw(response),
+  #     query = query,
+  #     max_simplify_lvl = 3L
+  #   )
+  #   list(ret)
+  # }
 filter_null <- function(x) {
   if (length(x) == 0 || !is.list(x))
     return(x)
@@ -63,16 +63,12 @@ convert_time <- function(x, fields) {
     )
 }
 
-# format_extattr <- function(json) {
-#   ext_attr <- json |>
-#     tidyjson::enter_object("extendedAttributes")
-#
-#     ext_attr <- suppressWarnings(tidyjson::gather_array(ext_attr))
-#     ext_attr <- ext_attr |>
-#     tidyjson::spread_values(name = jstring("name"), value = jstring("value")) |>
-#     tidyr::pivot_wider(id_cols = c(document.id, array.index), names_from = name, values_from = value)
-#   as_tibble(ext_attr)
-# }
+format_extattr <- function(x, value_col = "Value", name_col = "Name") {
+  has_attr <- map_lgl(x, ~ hasName(.x, value_col))
+  x[has_attr] <- map(x[has_attr], ~ setNames(as.list(.x[[value_col]]), .x[[name_col]]))
+  x[!has_attr] <- list(NULL)
+  x
+}
 #
 # format_location <- function(json) {
 #   ext_attr <- format_extattr(json)
@@ -102,12 +98,8 @@ format_response.parameter <- function(x) {
 #' @export
 format_response.locationdata <- function(x, ...) {
   ret <- format_row(resp_body_aqts(x))
+  ret$ExtendedAttributes <- format_extattr(ret$ExtendedAttributes, "Value", "Name")
   ret <- ret |>
-    dplyr::mutate(
-      ExtendedAttributes = map(
-        .x = ExtendedAttributes,
-        .f = \(x) setNames(as.list(as.character(x$Value)), x$Name))
-    ) |>
     tidyr::unnest_wider(ExtendedAttributes)
   ret
 }
@@ -182,7 +174,6 @@ format_response.GetTimeSeriesCorrectedDataResponse <- function(x, ...) {
   return(ret)
 }
 
-
 # Web Portal Responses ---------------------------------------------------------
 #' @export
 format_response.wp_response <- function(x, query, is_array = TRUE, ...) {
@@ -195,72 +186,19 @@ format_response.wp_response <- function(x, query, is_array = TRUE, ...) {
   ret
 }
 
-# format_response.location <- function(x, multiple = FALSE) {
-#   ret <- resp_body_wp(x, query = if(multiple) "/locations" else "/location", max_simplify_lvl = 0L)
-#   ret <- format_row(ret)
-#   ret |>
-#     dplyr::mutate(
-#       extendedAttributes = map(extendedAttributes, dplyr::bind_rows),
-#       extendedAttributes = purrr::map_if(
-#         .x = extendedAttributes,
-#         .p = ~ !rlang::has_name(., "value"),
-#         .f = \(x) dplyr::mutate(x, value = NA)
-#       ),
-#       extendedAttributes = purrr::map(
-#         .x = extendedAttributes,
-#         .f = ~ tidyr::pivot_wider(.,
-#           id_cols = c(),
-#           names_from = "name",
-#           values_from = "value"
-#         )
-#       )
-#     ) |>
-#     tidyr::hoist(elevationUnit, elevationUnitSymbol = "symbol") |>
-#     dplyr::select(-elevationUnit) |>
-#     tidyr::unnest(extendedAttributes)
-# }
-
 #' @export
 format_response.location <- function(x, multiple = FALSE) {
   ret <- resp_body_wp(x, query = if(multiple) "/locations" else "/location", max_simplify_lvl = 0L)
   if(!multiple) {
     ret <- format_row(ret)
   }
+  ret$extendedAttributes <- format_extattr(ret$extendedAttributes, "value", "name")
   ret <- ret |>
-    dplyr::mutate(
-      extendedAttributes = map(
-        .x = extendedAttributes,
-        .f = \(x) as_tibble(setNames(as.list(as.character(x$value)), x$name)))
-    ) |>
-    tidyr::unnest(extendedAttributes) |>
+    tidyr::unnest_wider(extendedAttributes) |>
     tidyr::hoist(elevationUnit, elevationUnitSymbol = "symbol") |>
     dplyr::select(-elevationUnit)
   type.convert(ret, as.is = TRUE)
 }
-
-# format_response.location <- function(x) {
-#   json <- x |>
-#     httr2::resp_body_string() |>
-#     tidyjson::enter_object(location)
-#   format_location(json)
-# }
-#
-# format_response.locations <- function(x) {
-#   json <- x |>
-#     httr2::resp_body_string() |>
-#     tidyjson::enter_object(locations) |>
-#     tidyjson::gather_array()
-#   format_location(json)
-# }
-
-
-# format_response.dataset <- function(x) {
-#   fast_tbljson(x) |>
-#     enter_object("datasets") |>
-#     gather_array() |>
-#     spread_all() |>
-#     as_tibble()
-# }
 
 #' @export
 format_response.lateststatistic <- function(x) {
@@ -303,6 +241,21 @@ format_response.export <- function(x) {
 #' @export
 format_response.bulk <- function(x) {
   ret <- format_response.wp_response(x, "/series")
+  ret <- ret |>
+    tidyr::unnest_wider(dataset) |>
+    tidyr::unnest_wider(timeRange) |>
+    dplyr::mutate(
+      points = map(
+        points,
+        \(x) convert_time(dplyr::bind_rows(map(x, format_row)), "timestamp"))
+    ) |>
+    convert_time(c("startTime", "endTime"))
+  ret
+}
+
+#' @export
+format_response.aligned <- function(x) {
+  ret <- format_response.wp_response(x, "/Rows")
   ret <- ret |>
     tidyr::unnest_wider(dataset) |>
     tidyr::unnest_wider(timeRange) |>
