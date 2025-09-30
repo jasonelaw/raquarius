@@ -3,10 +3,13 @@
 \name{post-attachments}
 \alias{post-attachments}
 \alias{PostReportAttachment}
+\alias{DeleteReportAttachment}
 \alias{PostLocationAttachment}
 \title{Post Attachements}
 \usage{
 PostReportAttachment(File, LocationUniqueId, Title, type, ..., .perform = TRUE)
+
+DeleteReportAttachment(ReportUniqueId, .perform = TRUE)
 
 PostLocationAttachment(File, LocationUniqueId, ..., .perform = TRUE)
 }
