@@ -25,6 +25,18 @@ PostReportAttachment <- function(File, LocationUniqueId, Title, type, ..., .perf
 
 #' @rdname post-attachments
 #' @export
+DeleteReportAttachment <- function(ReportUniqueId, .perform = TRUE) {
+  ret <- aquarius(api = "acquisition") |>
+    req_template("/attachments/reports/{ReportUniqueId}") |>
+    req_method("DELETE")
+  if (.perform) {
+    ret <- req_perform(ret)
+  }
+  ret
+}
+
+#' @rdname post-attachments
+#' @export
 PostLocationAttachment <- function(File, LocationUniqueId, ..., .perform = TRUE) {
   ret <- aquarius(api = "acquisition") |>
     req_template("/locations/{LocationUniqueId}/attachments") |>

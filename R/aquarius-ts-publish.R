@@ -171,6 +171,34 @@ GetActiveMetersAndCalibrations <- function(.format = TRUE, .perform = TRUE){
   ret
 }
 
+# Report List ------------------------------------------------------------------
+#' Query Reports
+#'
+#' Queries a
+#'
+#' @export
+GetReportList <- function(
+    LocationUniqueId = NULL,
+    TimeSeriesUniqueIds = NULL,
+    ReportTitle = NULL,
+    ...,
+    .format = TRUE,
+    .perform = TRUE
+) {
+  ret <- aquarius(
+    LocationUniqueId = LocationUniqueId,
+    TimeSeriesUniqueIds = TimeSeriesUniqueIds,
+    ReportTitle = ReportTitle,
+    operation = "GetReportList")
+  if (.perform) {
+    ret <- req_perform_aqts(ret)
+    if (.format){
+      ret <- format_response(ret, query = "/Reports")
+    }
+  }
+  ret
+}
+
 # Location Requests ------------------------------------------------------------
 #' Functions for Locations
 #'
