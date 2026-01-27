@@ -145,7 +145,7 @@ format_response.tsdata <- function(x, ...) {
 }
 
 #'@export
-format_response.GetTimeSeriesCorrectedDataResponse <- function(x, ...) {
+format_response.tsdatacorr <- function(x, ...) {
   format_points <- function(x, ...){
     tibble::as_tibble(x) |>
       dplyr::mutate(

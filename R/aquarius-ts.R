@@ -73,11 +73,18 @@ req_auth_token <- function(req, username = aq_get_user(), password = aq_get_pw()
   req
 }
 
+
 req_perform_aqts <- function(req) {
-  response <- httr2::req_perform(req)
-  class <- rev(class(req))[3]
-  class <- if (is.na(class)) NULL else class
-  new_aqts_response(response, class = class)
+  if (inherits(req, "aqts_request")) {
+    response <- httr2::req_perform(req)
+    cls <- setdiff(class(req), c("aqts_request", "httr2_request"))
+    ret <- new_aqts_response(response, class = cls)
+  } else if (inherits(req, "list") && length(req) > 1) {
+    response <- httr2::req_perform_parallel(req, progress = TRUE, max_active = 10)
+    cls <- map(req, \(x) setdiff(class(x), c("aqts_request", "httr2_request")))
+    ret <- map2(response, cls, \(x, y) new_aqts_response(x, y))
+  }
+  ret
 }
 
 resp_body_aqts <- function(resp, query = NULL, max_simplify_lvl = 0L) {

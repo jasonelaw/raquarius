@@ -476,7 +476,7 @@ GetTimeSeriesCorrectedData <- function(
   args <- Filter(Negate(rlang::is_missing), args)
   args <- tibble::as_tibble(args)
   do_request <- function(x) {
-    aquarius("GetTimeSeriesCorrectedData") |> req_url_query(!!!x)
+    aquarius(operation = "GetTimeSeriesCorrectedData", class = "tsdatacorr") |> req_url_query(!!!x)
   }
   ret <- args |>
     dplyr::mutate(.id = dplyr::row_number()) |>
@@ -486,13 +486,10 @@ GetTimeSeriesCorrectedData <- function(
         .x = data,
         .f = do_request
       )
-    )
+    ) |>
+    pull(request)
   if (.perform) {
-    ret <- httr2::req_perform_parallel(
-      ret$request,
-      pool = curl::new_pool(total_con = 100, host_con = 20)
-    )
-    ret <- map(ret, new_aqts_response)
+    ret <- req_perform_aqts(ret)
     if (.format){
       ret <- map(ret, format_response)
       ret <- dplyr::bind_rows(ret)
