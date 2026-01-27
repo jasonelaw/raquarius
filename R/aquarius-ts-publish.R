@@ -487,7 +487,7 @@ GetTimeSeriesCorrectedData <- function(
         .f = do_request
       )
     ) |>
-    pull(request)
+    dplyr::pull(request)
   if (.perform) {
     ret <- req_perform_aqts(ret)
     if (.format){
