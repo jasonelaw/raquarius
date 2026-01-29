@@ -8,5 +8,15 @@
 
 library(testthat)
 library(raquarius)
-
+set_state_inspector(
+  function() {
+    vars <- c(
+      "AQUARIUS_URL", "AQUARIUS_USER", "AQUARIUS_PW", "",
+      "AQUARIUS_WEBPORTAL_PW", "AQUARIUS_WEBPORTAL_URL", "AQUARIUS_WEBPORTAL_USER"
+    )
+    list(
+      envvar = Sys.getenv(vars)
+    )
+  }
+)
 test_check("raquarius")

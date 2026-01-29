@@ -220,7 +220,7 @@ test_that("GetMapDataPeriodicStatistics returns the right objects and completes 
 test_that("GetExportDataSet returns the right objects and completes successfully", {
   skip_if_webportal_offline()
 
-  request <- GetExportDataSet(dataset = "Precip Increm.Primary@HYDRA-160", .perform = FALSE, .format = FALSE)
+  request <- GetExportDataSet(DataSet = "Precip Increm.Primary@HYDRA-160", .perform = FALSE, .format = FALSE)
   expect_s3_class(request, "httr2_request")
   expect_s3_class(request, "wp_request")
   expect_s3_class(request, "export")
@@ -229,14 +229,14 @@ test_that("GetExportDataSet returns the right objects and completes successfully
     GetExportDataSet(
       .perform = FALSE, .format = FALSE
     ),
-    regexp = "argument \"dataset\" is missing"
+    regexp = "argument \"DataSet\" is missing"
   )
 
-  response <- GetExportDataSet(dataset = "Precip Increm.Primary@HYDRA-160", .perform = TRUE, .format = FALSE)
+  response <- GetExportDataSet(DataSet = "Precip Increm.Primary@HYDRA-160", .perform = TRUE, .format = FALSE)
   expect_s3_class(response, "httr2_response")
   expect_identical(httr2::resp_status(response), 200L)
 
-  result <- GetExportDataSet(dataset = "Precip Increm.Primary@HYDRA-160", .perform = TRUE, .format = TRUE)
+  result <- GetExportDataSet(DataSet = "Precip Increm.Primary@HYDRA-160", .perform = TRUE, .format = TRUE)
   expect_s3_class(result, "data.frame")
 })
 

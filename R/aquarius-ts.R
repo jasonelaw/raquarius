@@ -1,9 +1,7 @@
 # Aquarius ---------------------------------------------------------------------
-aq_get_url <- make_get_env("AQUARIUS_URL")
+aq_get_url  <- make_get_env("AQUARIUS_URL")
 aq_get_user <- make_get_env("AQUARIUS_USER")
-aq_get_pw <- make_get_env("AQUARIUS_PW")
-
-
+aq_get_pw   <- make_get_env("AQUARIUS_PW")
 
 aquarius <- function(...,
     operation = NULL,
