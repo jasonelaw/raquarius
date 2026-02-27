@@ -255,16 +255,29 @@ format_response.bulk <- function(x) {
 
 #' @export
 format_response.aligned <- function(x) {
-  ret <- format_response.wp_response(x, "/Rows")
-  ret <- ret |>
-    tidyr::unnest_wider(dataset) |>
-    tidyr::unnest_wider(timeRange) |>
+  pointer <- c(
+    datasets = "/datasets",
+    startTime = "/timeRange/startTime",
+    endTime = "/timeRange/endTime",
+    rows = "/rows"
+  )
+  ret <- RcppSimdJson::fparse(httr2::resp_body_raw(x), pointer, max_simplify_lvl = 0L)
+  ret <- ret$datasets |>
     dplyr::mutate(
-      points = map(
-        points,
-        \(x) convert_time(dplyr::bind_rows(map(x, format_row)), "timestamp"))
+      startTime = lubridate::ymd_hms(ret$startTime),
+      endTime = lubridate::ymd_hms(ret$endTime)
     ) |>
-    convert_time(c("startTime", "endTime"))
+    dplyr::left_join(
+      y = ret$rows |>
+        tibble::as_tibble() |>
+        tidyr::unnest(points),
+      by = dplyr::join_by(identifier == dataset)
+    ) |>
+    dplyr::mutate(
+      timestamp = lubridate::ymd_hms(timestamp)
+    ) |>
+    dplyr::select(dplyr::where(~!all(is.na(.)))) |>
+    tibble::as_tibble()
   ret
 }
 

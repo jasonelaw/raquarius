@@ -408,15 +408,6 @@ GetTimeSeriesDescriptionList <- function(LocationIdentifer = NULL, Parameter = N
   ret
 }
 
-#make_endpoint_function(
-#   endpoint = "GetTimeSeriesDescriptionListByUniqueId",
-#   node = "TimeSeriesDescriptions",
-#   args = rlang::pairlist2(
-#     TimeSeriesUniqueIds = rlang::missing_arg(),
-#     .method = "POST"
-#   )
-# )
-
 #' @rdname ts-requests
 #' @export
 GetTimeSeriesData <- function(TimeSeriesUniqueIds, QueryFrom = NULL, QueryTo = NULL, ..., .format = TRUE, .perform = TRUE){

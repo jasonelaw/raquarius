@@ -4,7 +4,7 @@ Datasets <- function(Identifier, Calculation = NULL, Unit = NULL){
   if (!is.null(Calculation)){
     choices <- c("Instantaneous", "Maximum", "Minimum", "Aggregate",
       "Integrate", "Differentiate")
-    Calculation <- match.arg(Calculation, choices, several.ok = TRUE)
+    stopifnot(Calculation %in% choices)
   }
   tibble(Identifier, Calculation, Unit)
 }

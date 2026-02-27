@@ -1,7 +1,7 @@
 #' Get a monitoring location
 prGetLocation <- function(unique_id, .perform = TRUE, .format = TRUE){
   ret <- aquarius(api = "provisioning", class = "locations") |>
-    req_template("GET /locations/{unique_id}")
+    req_template("/locations/{unique_id}")
   if (.perform) {
     ret <- req_perform_aqts(ret)
     if (.format){

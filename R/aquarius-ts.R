@@ -1,4 +1,7 @@
 # Aquarius ---------------------------------------------------------------------
+# Move code for performing and handling responses out of each function
+# Automatically set class of request and response based on "operation"
+
 aq_get_url  <- make_get_env("AQUARIUS_URL")
 aq_get_user <- make_get_env("AQUARIUS_USER")
 aq_get_pw   <- make_get_env("AQUARIUS_PW")
@@ -8,28 +11,24 @@ aquarius <- function(...,
     class = NULL,
     api = c("publish", "acquisition", "provisioning"),
     url = aq_get_url(),
-    #method = c("GET", "POST", "DELETE", "PUT"),
     auth = TRUE,
     .multi = "error"
 ) {
   verbose <- getOption("raquarius.verbose")
   api    <- match.arg(api)
-  #method <- match.arg(method)
   path <- switch(api,
     publish      = "publish/v2",
     acquisition  = "acquisition/v2",
     provisioning = "provisioning/v1"
   )
 
-  params <- list2(...)
   req <- httr2::request(url) |>
     httr2::req_url_path_append(path, operation) |>
     httr2::req_error(body = error_response) |>
     httr2::req_user_agent("https://github.com/jasonelaw/raquarius") |>
     httr2::req_headers(
       `Accept-Encoding` = "gzip"
-    ) |>
-    req_url_query(!!!params)
+    )
   if (auth) {
     req <- req_auth_token(req)
   }
@@ -38,7 +37,18 @@ aquarius <- function(...,
   }
   attr(req, "operation") <- operation
   attr(req, "api") <- api
-  structure(req, class = c(class, "aqts_request", class(req)))
+
+
+
+  params <- list2(...)
+  vector_args <- any(lengths(params) > 1)
+  if (vector_args) {
+  req <- multi_request(as_tibble(params), req)
+  } else {
+  req <- req |> req_url_query(!!!params)
+  }
+  req <- structure(req, class = c(class, "aqts_request", class(req)))
+  return(req)
 }
 
 error_response <- function(x) {
@@ -64,9 +74,8 @@ req_auth_token <- function(req, username = aq_get_user(), password = aq_get_pw()
     cache_token(token)
   }
   req <- req |>
-    req_headers(
-      `X-Authentication-Token` = token$token,
-      .redact = "X-Authentication-Token"
+    httr2::req_headers_redacted(
+      `X-Authentication-Token` = token$token
     )
   req
 }
@@ -77,11 +86,12 @@ req_perform_aqts <- function(req) {
     response <- httr2::req_perform(req)
     cls <- setdiff(class(req), c("aqts_request", "httr2_request"))
     ret <- new_aqts_response(response, class = cls)
-  } else if (inherits(req, "list") && length(req) > 1) {
-    response <- httr2::req_perform_parallel(req, progress = TRUE, max_active = 10)
-    cls <- map(req, \(x) setdiff(class(x), c("aqts_request", "httr2_request")))
-    ret <- map2(response, cls, \(x, y) new_aqts_response(x, y))
   }
+  # } else if (inherits(req, "list") && length(req) > 1) {
+  #   response <- httr2::req_perform_parallel(req, progress = TRUE, max_active = 10)
+  #   cls <- map(req, \(x) setdiff(class(x), c("aqts_request", "httr2_request")))
+  #   ret <- map2(response, cls, \(x, y) new_aqts_response(x, y))
+  # }
   ret
 }
 
@@ -127,6 +137,20 @@ aqts_perform_parallel <- function(x, fun, format = TRUE) {
   reqs
 }
 
+get_api <- function(url) {
+  #url <- httr2::req_get_url(req)
+  path <- httr2::url_parse(url)$path
+  api_regex <- "[/](publish|provisioning|acquisition)[/]"
+  stringr::str_extract(path, api_regex, group = 1)
+}
+
+get_operation <- function(url) {
+  path <- httr2::url_parse(url)$path
+  path <- stringr::str_extract(path, "([^/]+)/?$", group = 1)
+  #path <- stringr::str_replace(path, "/", "")
+  path
+}
+
 new_aqts_request <- function(x, operation, api, class = NULL) {
   stopifnot(inherits(x, "httr2_request"))
   attr(req, "operation") <- operation
@@ -141,3 +165,36 @@ new_aqts_response <- function(x, class = NULL) {
     class = new_class
   )
 }
+
+url_last_path <- function(x) {
+  path <- stringr::str_extract(x, "[^/]+/?$")
+  path <- stringr::str_replace(path, "/", "")
+  path
+}
+
+handle_request <- function(req, query, .format) {
+
+}
+
+multi_request <- function(x, req) {
+  foo <- \(x) req |> httr2::req_url_query(!!!x) |> list()
+  x |>
+    dplyr::mutate(row = 1:n()) |>
+    dplyr::nest_by(row) |>
+    dplyr::summarize(req = foo(data)) |>
+    dplyr::pull(req)
+}
+
+# new_pdxmaps_request <- function(req) {
+#   url <- httr2::req_get_url(req)
+#   path <- url_last_path(url)
+#   class(req) <- c(paste0("pdx", path, "_request"), class(req))
+#   req
+# }
+#
+# new_pdxmaps_response <- function(resp) {
+#   path <- httr2::resp_url_path(resp)
+#   path <- url_last_path(path)
+#   class(resp) <- c(paste0("pdx", path, "_response"), class(resp))
+#   resp
+# }

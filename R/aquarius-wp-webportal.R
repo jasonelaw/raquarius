@@ -91,7 +91,7 @@ GetLatestStatistics <- function(parameter = NULL, statistic = NULL, active = NUL
     ret <- req_perform_wp(ret)
     if (.format){
       ret <- format_response(ret, "/latestStatistics") |>
-        unnest_wider(unit, names_sep = "")
+        tidyr::unnest_wider(unit, names_sep = "")
     }
   }
   ret
@@ -117,6 +117,7 @@ GetLatestStatistic <- function(parameter = NULL, statistic = NULL, ..., .format 
 #' @describeIn webportal-routes Get Latest Statistics
 #' @export
 GetLatestStatisticsByParameter <- function(parameter = NULL, ..., .format = TRUE, .perform = TRUE) {
+  parameter <- URLencode(parameter)
   ret <- webportal(..., class = "lateststatisticdef") |>
     req_template("statistics/latest/{parameter}")
   if (.perform) {
@@ -190,7 +191,7 @@ GetMapDataAllLocations <- function(..., .perform = TRUE, .format = TRUE) {
 #' @describeIn webportal-routes List timeseries by parameter; return sf object
 #' @export
 GetMapDataDatasetsByParameter <- function(parameter, ..., .perform = TRUE, .format = TRUE) {
-  parameter <- identity(parameter)
+  parameter <- URLencode(parameter)
   ret <- webportal(..., class = "geojson") |>
     req_template("map/datasets/{parameter}")
   if (.perform) {
@@ -300,51 +301,23 @@ GetExportSeasonalStatistic <- function(
 
 #' @describeIn webportal-routes Export several time-aligned data sets.
 #' @export
-GetExportTimeAligned <- function(
-  Datasets,
-  Calendar = NULL,
-  StartTime = NULL,
-  EndTime = NULL,
-  Step = NULL,
-  Timezone = NULL,
-  DateRange = c(
-    "EntirePeriodOfRecord", "OverlappingPeriodOfRecord", "Today",
-    "Days7", "Days30", "Months6", "Years1"
-  ),
-  Interval = c(
-    "PointsAsRecorded", "Minutely", "Hourly", "Daily", "Monthly",
-    "Yearly"
-  ),
-  RoundData = FALSE,
-  IncludeGradeCodes = TRUE,
-  IncludeQualifiers = TRUE,
-  IncludeApprovalLevels = TRUE,
-  IncludeInterpolationTypes = TRUE,
-  ...
-) {
-  DateRange <- match.arg(DateRange)
-  Interval <- match.arg(Interval)
-  data <- dots_list(
-    Datasets = Datasets,
-    Calendar = Calendar,
-    StartTime = StartTime,
-    EndTime = EndTime,
-    Step = Step,
-    Timezone = Timezone,
-    RoundData = RoundData, DateRange = DateRange, Interval, RoundData, IncludeGradeCodes,
-    IncludeQualifiers, IncludeApprovalLevels, IncludeInterpolationTypes, .ignore_empty = "all"
-  )
-  req <- aq_webportal_req(path = c("export", "time-aligned")) |>
-    req_method("POST") |>
-    req_body_json(data)
-  # resp <- req |> req_perform()
-  req
+GetExportTimeAligned <- function(..., .perform = TRUE, .format = TRUE) {
+  args <- list2(...)
+  ret <- webportal(path = c("export", "time-aligned"), class = "aligned") |>
+    #req_method("POST") |>
+    req_body_json(args)
+  if (.perform) {
+    ret <- req_perform_wp(ret)
+    if (.format){
+      ret <- format_response(ret)
+    }
+  }
+  ret
 }
 
 #' Read from the Web Portal export tab
 #'
 #' This function reads from the Web Portal export tab.
-#' https://aquarius.portlandoregon.gov/Export/BulkExport?DateRange=EntirePeriodOfRecord&TimeZone=-8&Calendar=CALENDARYEAR&Interval=PointsAsRecorded&Step=1&ExportFormat=csv&TimeAligned=False&RoundData=False&IncludeGradeCodes=True&IncludeApprovalLevels=True&IncludeQualifiers=True&IncludeInterpolationTypes=True&Datasets[0].DatasetName=Temperature.7DADM%40P0337&Datasets[0].Calculation=Instantaneous&Datasets[0].UnitId=168&_=1686947628225
 #' @export
 GetExport <- function(...) {
   req <- aq_webportal_req(NULL, ...) |>
