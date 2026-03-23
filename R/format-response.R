@@ -59,7 +59,7 @@ format_row <- function(x) {
 convert_time <- function(x, fields) {
   x |>
     dplyr::mutate(
-      dplyr::across(.cols = dplyr::one_of(fields), .fns = parse_timestamp)
+      dplyr::across(.cols = dplyr::any_of(fields), .fns = parse_timestamp)
     )
 }
 
