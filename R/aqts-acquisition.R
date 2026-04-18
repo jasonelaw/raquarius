@@ -1,4 +1,5 @@
 # Acquisition API ------------------------------------------------------------
+
 #' Post Attachements
 #'
 #' These functions post files as attachments.
@@ -9,7 +10,7 @@ NULL
 
 #' @rdname post-attachments
 #' @export
-PostReportAttachment <- function(File, LocationUniqueId, Title, type, ..., .perform = TRUE) {
+aqPostReportAttachment <- function(File, LocationUniqueId, Title, type, ..., .perform = TRUE) {
   ret <- aquarius(api = "acquisition") |>
     req_template("/locations/{LocationUniqueId}/attachments/reports") |>
     req_body_multipart(
@@ -25,7 +26,7 @@ PostReportAttachment <- function(File, LocationUniqueId, Title, type, ..., .perf
 
 #' @rdname post-attachments
 #' @export
-DeleteReportAttachment <- function(ReportUniqueId, .perform = TRUE) {
+aqDeleteReportAttachment <- function(ReportUniqueId, .perform = TRUE) {
   ret <- aquarius(api = "acquisition") |>
     req_template("/attachments/reports/{ReportUniqueId}") |>
     req_method("DELETE")
@@ -37,7 +38,7 @@ DeleteReportAttachment <- function(ReportUniqueId, .perform = TRUE) {
 
 #' @rdname post-attachments
 #' @export
-PostLocationAttachment <- function(File, LocationUniqueId, ..., .perform = TRUE) {
+aqPostLocationAttachment <- function(File, LocationUniqueId, ..., .perform = TRUE) {
   ret <- aquarius(api = "acquisition") |>
     req_template("/locations/{LocationUniqueId}/attachments") |>
     req_body_multipart(
@@ -49,4 +50,27 @@ PostLocationAttachment <- function(File, LocationUniqueId, ..., .perform = TRUE)
     ret <- req_perform_aqts(ret)
   }
   ret
+}
+
+#' @export
+aqAppendTimeseries <- function(UniqueId, Points, .perform = TRUE) {
+  stopifnot(
+    "Points must be a data.frame" = is.data.frame(Points),
+    "Points must have columns: Time, Value" = c("Time", "Value") %in% names(Points)
+  )
+  ret <- aquarius(api = "acquisition") |>
+    req_template("/timeseries/{UniqueId}/append") |>
+    req_body_json(Points)
+  if (.perform) {
+    ret <- req_perform_aqts(req)
+  }
+  req
+}
+
+aqOverwriteAppendTimeseries <- function() {
+
+}
+
+aqAppendReflectedTimeseries <- function() {
+
 }

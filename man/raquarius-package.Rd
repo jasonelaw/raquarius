@@ -6,7 +6,7 @@
 \alias{raquarius-package}
 \title{raquarius: Aquarius Time Series API Client For R}
 \description{
-An interface to the API for Aquarius Time Series. The Publish API is currently mostly supported. In the future, it may support the Provisioning and Acquisition API.
+An interface to the API for Aquarius Time Series. The Publish and Web Portal APIs are currently mostly supported. In the future, it may support the Provisioning and Acquisition API.
 }
 \seealso{
 Useful links:

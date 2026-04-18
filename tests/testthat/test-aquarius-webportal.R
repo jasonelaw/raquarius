@@ -1,86 +1,88 @@
-test_that("GetLocation returns the right objects and completes successfully", {
+# get_location --------------------------------------------
+test_that("`get_location` ")
+test_that("get_location returns the right objects and completes successfully", {
   skip_if_webportal_offline()
 
-  request <- GetLocation(
+  request <- get_location(
     location = "HYDRA-160",
     .perform = FALSE, .format = FALSE
   )
   expect_s3_class(request, "httr2_request")
   expect_s3_class(request, "wp_request")
-  expect_s3_class(request, "location")
+  expect_s3_class(request, "wplocation")
 
   expect_error(
-    GetLocation(.perform = FALSE, .format = FALSE),
-    regexp = "argument \"location\" is missing"
+    get_location(.perform = FALSE, .format = FALSE),
+    regexp = "`location` is absent but must"
   )
 
-  response <- GetLocation(
+  response <- get_location(
     location = "HYDRA-160",
     .perform = TRUE, .format = FALSE
   )
-  expect_s3_class(response, "httr2_response")
-  expect_identical(httr2::resp_status(response), 200L)
+  expect_s3_class(response, "wp_response")
+  expect_identical(resp_status(response), 200L)
 
-  result <- GetLocation(
+  result <- get_location(
     location = "HYDRA-160",
     .perform = TRUE, .format = TRUE
   )
   expect_s3_class(result, "data.frame")
 })
 
-test_that("GetLocations returns the right objects and completes successfully", {
+test_that("get_locations returns the right objects and completes successfully", {
   skip_if_webportal_offline()
 
-  request <- GetLocations(.perform = FALSE, .format = FALSE)
+  request <- get_locations(.perform = FALSE, .format = FALSE)
   expect_s3_class(request, "httr2_request")
   expect_s3_class(request, "wp_request")
-  expect_s3_class(request, "location")
+  expect_s3_class(request, "wplocations")
 
-  response <- GetLocations(.perform = TRUE, .format = FALSE)
-  expect_s3_class(response, "httr2_response")
-  expect_identical(httr2::resp_status(response), 200L)
+  response <- get_locations(.perform = TRUE, .format = FALSE)
+  expect_s3_class(response, "wp_response")
+  expect_identical(resp_status(response), 200L)
 
-  result <- GetLocations(.perform = TRUE, .format = TRUE)
+  result <- get_locations(.perform = TRUE, .format = TRUE)
   expect_s3_class(result, "data.frame")
 })
 
-test_that("GetDataset returns the right objects and completes successfully", {
+test_that("get_dataset returns the right objects and completes successfully", {
   skip_if_webportal_offline()
 
-  request <- GetDataset(.perform = FALSE, .format = FALSE)
+  request <- get_dataset(.perform = FALSE, .format = FALSE)
   expect_s3_class(request, "httr2_request")
   expect_s3_class(request, "wp_request")
   expect_s3_class(request, "dataset")
 
-  response <- GetDataset(.perform = TRUE, .format = FALSE)
-  expect_s3_class(response, "httr2_response")
-  expect_identical(httr2::resp_status(response), 200L)
+  response <- get_dataset(.perform = TRUE, .format = FALSE)
+  expect_s3_class(response, "wp_response")
+  expect_identical(resp_status(response), 200L)
 
-  result <- GetDataset(.perform = TRUE, .format = TRUE)
+  result <- get_dataset(.perform = TRUE, .format = TRUE)
   expect_s3_class(result, "data.frame")
 })
 
-test_that("GetMapDataAllLocations returns the right objects and completes successfully", {
+test_that("get_map_locations returns the right objects and completes successfully", {
   skip_if_webportal_offline()
 
-  request <- GetMapDataAllLocations(.perform = FALSE, .format = FALSE)
+  request <- get_map_locations(.perform = FALSE, .format = FALSE)
   expect_s3_class(request, "httr2_request")
   expect_s3_class(request, "wp_request")
   expect_s3_class(request, "geojson")
 
-  response <- GetMapDataAllLocations(.perform = TRUE, .format = FALSE)
-  expect_s3_class(response, "httr2_response")
-  expect_identical(httr2::resp_status(response), 200L)
+  response <- get_map_locations(.perform = TRUE, .format = FALSE)
+  expect_s3_class(response, "wp_response")
+  expect_identical(resp_status(response), 200L)
 
-  result <- GetMapDataAllLocations(.perform = TRUE, .format = TRUE)
+  result <- get_map_locations(.perform = TRUE, .format = TRUE)
   expect_s3_class(result, "data.frame")
   expect_s3_class(result, "sf")
 })
 
-test_that("GetMapDataDatasetsByParameter returns the right objects and completes successfully", {
+test_that("get_map_datasets returns the right objects and completes successfully", {
   skip_if_webportal_offline()
 
-  request <- GetMapDataDatasetsByParameter(
+  request <- get_map_datasets(
     parameter = "Precip Increm",
     .perform = FALSE, .format = FALSE
   )
@@ -89,18 +91,18 @@ test_that("GetMapDataDatasetsByParameter returns the right objects and completes
   expect_s3_class(request, "geojson")
 
   expect_error(
-    GetMapDataDatasetsByParameter(.perform = FALSE, .format = FALSE),
-    regexp = "argument \"parameter\" is missing"
+    get_map_datasets(.perform = FALSE, .format = FALSE),
+    regexp = "`parameter` is absent"
   )
 
-  response <- GetMapDataDatasetsByParameter(
+  response <- get_map_datasets(
     parameter = "Precip Increm",
     .perform = TRUE, .format = FALSE
   )
-  expect_s3_class(response, "httr2_response")
-  expect_identical(httr2::resp_status(response), 200L)
+  expect_s3_class(response, "wp_response")
+  expect_identical(resp_status(response), 200L)
 
-  result <- GetMapDataDatasetsByParameter(
+  result <- get_map_datasets(
     parameter = "Precip Increm",
     .perform = TRUE, .format = TRUE
   )
@@ -108,10 +110,10 @@ test_that("GetMapDataDatasetsByParameter returns the right objects and completes
   expect_s3_class(result, "sf")
 })
 
-test_that("GetMapDataLatestStatistics returns the right objects and completes successfully", {
+test_that("get_map_latest_stat returns the right objects and completes successfully", {
   skip_if_webportal_offline()
 
-  request <- GetMapDataLatestStatistics(
+  request <- get_map_latest_stat(
     parameter = "Precip Increm",
     statistic = "CALENDAR_1DAY",
     .perform = FALSE, .format = FALSE
@@ -121,28 +123,28 @@ test_that("GetMapDataLatestStatistics returns the right objects and completes su
   expect_s3_class(request, "geojson")
 
   expect_error(
-    GetMapDataLatestStatistics(.perform = FALSE, .format = FALSE),
-    regexp = "argument \"parameter\" is missing"
+    get_map_latest_stat(.perform = FALSE, .format = FALSE),
+    regexp = "`parameter` is absent"
   )
   expect_error(
-    GetMapDataLatestStatistics(
+    get_map_latest_stat(
       parameter = "Precip Increm",
       .perform = FALSE,
       .format = FALSE
     ),
-    regexp = "argument \"statistic\" is missing"
+    regexp = "`statistic` is absent"
   )
 
-  response <- GetMapDataLatestStatistics(
+  response <- get_map_latest_stat(
     parameter = "Precip Increm",
     statistic = "CALENDAR_1DAY",
     .perform = TRUE,
     .format = FALSE
   )
-  expect_s3_class(response, "httr2_response")
-  expect_identical(httr2::resp_status(response), 200L)
+  expect_s3_class(response, "wp_response")
+  expect_identical(resp_status(response), 200L)
 
-  result <- GetMapDataLatestStatistics(
+  result <- get_map_latest_stat(
     parameter = "Precip Increm",
     statistic = "CALENDAR_1DAY",
     .perform = TRUE,
@@ -154,14 +156,14 @@ test_that("GetMapDataLatestStatistics returns the right objects and completes su
 
 
 
-test_that("GetMapDataPeriodicStatistics returns the right objects and completes successfully", {
+test_that("get_map_periodic_stat returns the right objects and completes successfully", {
   skip_if_webportal_offline()
 
-  request <- GetMapDataPeriodicStatistics(
+  request <- get_map_periodic_stat(
     parameter = "Precip Increm",
     statistic = "CALENDAR_TOTALS",
     interval = "Daily",
-    date = "2025-01-01",
+    date = "2021-01-01",
     .perform = FALSE, .format = FALSE
   )
   expect_s3_class(request, "httr2_request")
@@ -169,15 +171,15 @@ test_that("GetMapDataPeriodicStatistics returns the right objects and completes 
   expect_s3_class(request, "geojson")
 
   expect_error(
-    GetMapDataPeriodicStatistics(.perform = FALSE, .format = FALSE),
-    regexp = "argument \"parameter\" is missing"
+    get_map_periodic_stat(.perform = FALSE, .format = FALSE),
+    regexp = "`parameter` is absent"
   )
   expect_error(
-    GetMapDataPeriodicStatistics(parameter = "Precip Increm", .perform = FALSE, .format = FALSE),
-    regexp = "argument \"statistic\" is missing"
+    get_map_periodic_stat(parameter = "Precip Increm", .perform = FALSE, .format = FALSE),
+    regexp = "`dataset` is absent"
   )
   expect_error(
-    GetMapDataPeriodicStatistics(
+    get_map_periodic_stat(
       parameter = "Precip Increm",
       statistic = "CALENDAR_TOTALS",
       .perform = FALSE, .format = FALSE
@@ -203,8 +205,8 @@ test_that("GetMapDataPeriodicStatistics returns the right objects and completes 
     date = "2025-01-01",
     .perform = TRUE, .format = FALSE
   )
-  expect_s3_class(response, "httr2_response")
-  expect_identical(httr2::resp_status(response), 200L)
+  expect_s3_class(response, "wp_response")
+  expect_identical(resp_status(response), 200L)
 
   result <- GetMapDataPeriodicStatistics(
     parameter = "Precip Increm",
@@ -217,37 +219,38 @@ test_that("GetMapDataPeriodicStatistics returns the right objects and completes 
   expect_s3_class(result, "sf")
 })
 
-test_that("GetExportDataSet returns the right objects and completes successfully", {
+test_that("export_dataset returns the right objects and completes successfully", {
   skip_if_webportal_offline()
 
-  request <- GetExportDataSet(DataSet = "Precip Increm.Primary@HYDRA-160", .perform = FALSE, .format = FALSE)
+  request <- export_dataset("Precip Increm.Primary@HYDRA-160", .perform = FALSE, .format = FALSE)
   expect_s3_class(request, "httr2_request")
   expect_s3_class(request, "wp_request")
   expect_s3_class(request, "export")
 
   expect_error(
-    GetExportDataSet(
+    export_dataset(
       .perform = FALSE, .format = FALSE
     ),
-    regexp = "argument \"DataSet\" is missing"
+    regexp = "`dataset` is absent"
   )
 
-  response <- GetExportDataSet(DataSet = "Precip Increm.Primary@HYDRA-160", .perform = TRUE, .format = FALSE)
+  response <- export_dataset("Precip Increm.Primary@HYDRA-160", .perform = TRUE, .format = FALSE)
   expect_s3_class(response, "httr2_response")
-  expect_identical(httr2::resp_status(response), 200L)
+  expect_identical(resp_status(response), 200L)
 
-  result <- GetExportDataSet(DataSet = "Precip Increm.Primary@HYDRA-160", .perform = TRUE, .format = TRUE)
+  result <- export_dataset("Precip Increm.Primary@HYDRA-160", .perform = TRUE, .format = TRUE)
   expect_s3_class(result, "data.frame")
 })
 
 
-test_that("GetExportBulk returns the right objects and completes successfully", {
+test_that("get_export_bulk returns the right objects and completes successfully", {
   skip_if_webportal_offline()
 
-  request <- GetExportBulk(
-    Datasets = Datasets(
+  request <- export_bulk(
+    datasets = Datasets(
       Identifier = c("Precip Increm.Primary@HYDRA-1", "Precip Increm.Primary@HYDRA-160")
     ),
+    daterange = "Days7",
     .perform = F, .format = F
   )
   expect_s3_class(request, "httr2_request")
@@ -255,16 +258,20 @@ test_that("GetExportBulk returns the right objects and completes successfully", 
   expect_s3_class(request, "bulk")
 
 
-  response <- GetExportBulk(
-    Datasets = Datasets(
-      Identifier = c("Precip Increm.Primary@HYDRA-1", "Precip Increm.Primary@HYDRA-160")
+  response <- export_bulk(
+    datasets = Datasets(
+      Identifier = c(
+        "Precip Increm.Primary@HYDRA-1", "Precip Increm.Primary@HYDRA-160"
+      )
     ),
+    daterange = "Days7",
+    interval = "PointsAsRecorded",
     .perform = T, .format = F
   )
-  expect_s3_class(response, "httr2_response")
-  expect_identical(httr2::resp_status(response), 200L)
+  expect_s3_class(response, "wp_response")
+  expect_identical(resp_status(response), 200L)
 
-  result <- GetExportBulk(
+  result <- export_bulk(
     Datasets = Datasets(
       Identifier = c("Precip Increm.Primary@HYDRA-1", "Precip Increm.Primary@HYDRA-160")
     ),

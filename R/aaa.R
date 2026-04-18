@@ -88,14 +88,36 @@ check_host_reachable <- function(url) {
 parse_timestamp <- function(x) {
   allna <- all(is.na(x))
   if(allna){
-    x <- as.character(x)
+    return(as.POSIXct(x, tz = "America/Los_angeles"))
   }
+  if(lubridate::is.POSIXct(x)) return(x)
   ret <- lubridate::fast_strptime(x, "%Y-%m-%dT%H:%M:%OS%z", lt = FALSE)
   lubridate::with_tz(ret, tzone = Sys.timezone())
 }
 
 .setRAquariusOptions <- function(pkgname) {
   options(
-    "raquarius.verbose" = FALSE
+    "raquarius.verbose" = FALSE,
+    "raquarius.rename"  = FALSE
   )
+}
+
+is_list_of_requests<- function(x) {
+  ret <- rlang::is_list(x) &&
+    all(map_lgl(x, \(x) inherits(x, "httr2_request")))
+  if(ret) {
+    cls <- class(x[[1]])
+    ret <- all(map_lgl(x, \(x) rlang::inherits_all(x, cls)))
+  }
+  ret
+}
+
+is_list_of_responses <- function(x) {
+  ret <- rlang::is_list(x) &&
+    all(map_lgl(x, \(x) inherits(x, "httr2_response")))
+  if(ret) {
+    cls <- class(x[[1]])
+    ret <- all(map_lgl(x, \(x) rlang::inherits_all(x, cls)))
+  }
+  ret
 }
