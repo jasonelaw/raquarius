@@ -62,9 +62,9 @@ aqAppendTimeseries <- function(UniqueId, Points, .perform = TRUE) {
     req_template("/timeseries/{UniqueId}/append") |>
     req_body_json(Points)
   if (.perform) {
-    ret <- req_perform_aqts(req)
+    ret <- req_perform_aqts(ret)
   }
-  req
+  ret
 }
 
 aqOverwriteAppendTimeseries <- function() {
