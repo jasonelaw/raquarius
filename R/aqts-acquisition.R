@@ -60,7 +60,7 @@ aqAppendTimeseries <- function(UniqueId, Points, .perform = TRUE) {
   )
   ret <- aquarius(api = "acquisition") |>
     req_template("/timeseries/{UniqueId}/append") |>
-    req_body_json(Points)
+    req_body_json(list(Points = Points))
   if (.perform) {
     ret <- req_perform_aqts(ret)
   }
