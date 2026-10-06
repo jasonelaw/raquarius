@@ -80,32 +80,45 @@ unnest_wider_namevalue <- function(
   value_col = "value",
   name_col = "name"
 ) {
-  f <- function(x, name_col, value_col) {
-    has_value <- rlang::has_name(x, value_col)
-    if (has_value) {
-      x[[value_col]] <- as.character(x[[value_col]])
-    } else {
-      #list(NULL)
-      x[[value_col]] <- NA_character_
-    }
-    tibble::deframe(x[, c(name_col, value_col)])
-  }
-  ret <- x |>
-    dplyr::mutate(
-      "{{ col }}" := purrr::map(
-        {{ col }},
-        \(x) f(x, name_col = name_col, value_col = value_col)
-      )
+  # f <- function(x, name_col, value_col) {
+  #   has_value <- rlang::has_name(x, value_col)
+  #   if (has_value) {
+  #     x[[value_col]] <- as.character(x[[value_col]])
+  #   } else {
+  #     #list(NULL)
+  #     x[[value_col]] <- NA_character_
+  #   }
+  #   tibble::deframe(x[, c(name_col, value_col)])
+  # }
+
+  # ret <- x |>
+  #   dplyr::mutate(
+  #     "{{ col }}" := purrr::map(
+  #       {{ col }},
+  #       \(x) f(x, name_col = name_col, value_col = value_col)
+  #     )
+  #   ) |>
+  #   tidyr::unnest_wider(col = {{ col }})
+  #type.convert(ret, as.is = TRUE)
+  x |>
+    hoist(ExtendedAttributes, name_col, value_col) |>
+    unchop(cols = any_of(c(name_col, value_col))) |>
+    pivot_wider(
+      names_from = name_col,
+      values_from = value_col
     ) |>
-    tidyr::unnest_wider(col = {{ col }})
-  type.convert(ret, as.is = TRUE)
+    type.convert(as.is = TRUE)
 }
 
 # Aquarius Responses -----------------------------------------------------------
 #' @export
-format_response.aqts_response <- function(x, ...) {
+format_response.aqts_response <- function(x, wrap = FALSE, ...) {
+  ret <- simd_parse(x, ...)
+  if (wrap) {
+    ret <- list(ret)
+  }
   ret <- tibble::tibble(
-    response = simd_parse(x, ...)
+    response = ret
   ) |>
     tidyr::unnest_wider(response)
   ret
@@ -113,10 +126,7 @@ format_response.aqts_response <- function(x, ...) {
 
 #' @export
 format_response.locationdata <- function(x, ...) {
-  ret <- tibble::tibble(
-    response = list(simd_parse(x, ...))
-  ) |>
-    tidyr::unnest_wider(response)
+  ret <- NextMethod(wrap = TRUE)
   if (hasName(ret, "ExtendedAttributes")) {
     ret <- ret |>
       unnest_wider_namevalue(ExtendedAttributes, "Value", "Name")

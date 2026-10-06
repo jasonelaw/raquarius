@@ -206,13 +206,7 @@ GetLocationData <- function(
     operation = "GetLocationData",
     class = "locationdata"
   )
-  if (.perform) {
-    ret <- req_perform_aqts(ret)
-    if (.format) {
-      ret <- format_response(ret)
-    }
-  }
-  ret
+  handle_request(ret, .perform, .format, query = "")
 }
 
 # Field Visit Requests ---------------------------------------------------------
@@ -404,14 +398,10 @@ GetTimeSeriesDescriptionListByUniqueId <- function(
     operation = "GetTimeSeriesDescriptionListByUniqueId",
     class = "tslist"
   ) |>
-    req_body_json(data = list(TimeSeriesUniqueIds = TimeSeriesUniqueIds))
-  if (.perform) {
-    ret <- req_perform_aqts(ret)
-    if (.format) {
-      ret <- format_response(ret, "/TimeSeriesDescriptions")
-    }
-  }
-  ret
+    req_body_json(
+      data = list(TimeSeriesUniqueIds = TimeSeriesUniqueIds)
+    )
+  handle_request(ret, .perform, .format, query = "/TimeSeriesDescriptions")
 }
 
 #' @rdname ts-requests

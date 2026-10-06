@@ -116,8 +116,8 @@ aqOverwriteAppendTimeseries <- function(
     "The `open` argument must be a logical of length one" = is.logical(open) &
       identical(length(open), 1L)
   )
-  Start <- format_ISO8601(Start, usetz = TRUE)
-  End <- format_ISO8601(End, usetz = TRUE)
+  Start <- format_ISO8601(Start, usetz = "Z")
+  End <- format_ISO8601(End, usetz = "Z")
   if (open) {
     time_range <- list(TimeRange = list(Start = Start, End = End))
   } else {
@@ -125,7 +125,7 @@ aqOverwriteAppendTimeseries <- function(
   }
   ret <- aquarius(api = "acquisition") |>
     req_template("/timeseries/{UniqueId}/overwriteappend") |>
-    req_body_json(c(TimeRange = time_range, Points = list(Points)))
+    req_body_json(c(time_range, Points = list(Points)))
   if (.perform) {
     ret <- req_perform_aqts(ret)
   }
