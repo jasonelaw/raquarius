@@ -125,7 +125,7 @@ aqOverwriteAppendTimeseries <- function(
   }
   ret <- aquarius(api = "acquisition") |>
     req_template("/timeseries/{UniqueId}/overwriteappend") |>
-    req_body_json(list(TimeRange = time_range, Points = Points))
+    req_body_json(c(TimeRange = time_range, Points = list(Points)))
   if (.perform) {
     ret <- req_perform_aqts(ret)
   }
