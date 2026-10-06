@@ -172,8 +172,16 @@ url_last_path <- function(x) {
   path
 }
 
-handle_request <- function(req, query, .format) {
-
+handle_request <- function(request, .perform, .format, ...) {
+  if (.perform) {
+    ret <- req_perform_aqts(request)
+    if (.format){
+      ret <- format_response(ret, ...)
+    }
+  } else {
+    ret <- request
+  }
+  ret
 }
 
 multi_request <- function(x, req) {

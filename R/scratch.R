@@ -1,6 +1,6 @@
-Sys.setenv(AQUARIUS_URL = "https://beswebtst2/AQUARIUS")
-Sys.setenv(AQUARIUS_USER = "api-admin")
-Sys.setenv(AQUARIUS_PW = "SmileVigorousDiamond")
+# Sys.setenv(AQUARIUS_URL = "https://beswebtst2/AQUARIUS")
+# Sys.setenv(AQUARIUS_USER = "api-admin")
+# Sys.setenv(AQUARIUS_PW = "SmileVigorousDiamond")
 # PostTag <- function(tag, applicability = c("AppliesToLocations")) {
 #   applicability <- match.arg(applicability)
 #   req <- aquarius("tags", "provisioning", "POST")  |>

@@ -9,6 +9,14 @@ Datasets <- function(Identifier, Calculation = NULL, Unit = NULL){
   tibble(Identifier, Calculation, Unit)
 }
 
+#' Formats the ExtendedFilters argument of GetLocationDescriptionList and GetTimeSeriesDescriptionList
+#' The ExtendedFilters argument uses the ServiceStack jsv encoding
+#'@export
+ExtendedFilters <- function(FilterName, FilterValue) {
+  ret <- tibble::tibble(FilterName, FilterValue)
+  service_stack_encode(ret)
+}
+
 make_get_env <- function(keyname, signal_error = TRUE) {
   function() {
     key <- Sys.getenv(keyname, unset = NA)
@@ -120,4 +128,15 @@ is_list_of_responses <- function(x) {
     ret <- all(map_lgl(x, \(x) rlang::inherits_all(x, cls)))
   }
   ret
+}
+
+service_stack_encode <- function(x) {
+  encode <- function(x) {
+    ret <- jsonlite::toJSON(x)
+    ret <- gsub('"', '', as.character(ret))
+    ret
+  }
+  to_encode <- sapply(x, Negate(rlang::is_atomic))
+  x[to_encode] <- lapply(x[to_encode], \(x) map_chr(x, encode))
+  x
 }

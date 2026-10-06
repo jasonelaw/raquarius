@@ -1,6 +1,18 @@
+#' Shared parameter definitions
+#'
+#' @param ... additional arguments passed to the endpoint - please see the AQTS API documentation for available arguments
+#' @param .perform  if TRUE, perform the query and return the response
+#' @param .format if TRUE and `.perform = TRUE`, format the response, usually as a `data.frame`
+#' @name perform_and_format
+NULL
+
 # Authentication ---------------------------------------------------------------
-GetSessionPublickey <- function(){
-  resp <- aquarius(operation = c("session", "publickey"), api = "publish", auth = FALSE) |>
+GetSessionPublickey <- function() {
+  resp <- aquarius(
+    operation = c("session", "publickey"),
+    api = "publish",
+    auth = FALSE
+  ) |>
     req_perform() |>
     resp_body_json()
   parse_xml_pubkey(resp[["Xml"]])
@@ -8,7 +20,7 @@ GetSessionPublickey <- function(){
 
 PostSession <- function(username, password = askpass::askpass()) {
   pubkey <- GetSessionPublickey()
-  if(!is.raw(password)) {
+  if (!is.raw(password)) {
     password <- openssl::rsa_encrypt(charToRaw(password), pubkey, TRUE)
   }
   token <- aquarius(operation = "session", api = "publish", auth = FALSE) |>
@@ -25,7 +37,7 @@ DeleteSession <- function() {
   req <- aquarius(operation = "session", api = "publish") |>
     req_method("DELETE")
   resp <- req_perform(req)
-  if(resp_status(resp) < 300){
+  if (resp_status(resp) < 300) {
     the$reset()
   }
   resp
@@ -34,7 +46,7 @@ DeleteSession <- function() {
 GetSessionKeepalive <- function() {
   req <- aquarius(operation = c("session", "keepalive"), api = "publish")
   resp <- req_perform(req)
-  if(resp_status(resp) < 300){
+  if (resp_status(resp) < 300) {
     key <- hash(aq_get_url())
     token <- the$get(key)
     the$set(key, aq_token(token$token))
@@ -54,89 +66,64 @@ NULL
 
 #' @describeIn publish-config Retrieve parameter list.
 #' @export
- GetParameterList <- function(.format = TRUE, .perform = TRUE){
-   ret <- aquarius(operation = "GetParameterList", class = "parameter")
-   if (.perform) {
-     ret <- req_perform_aqts(ret)
-     if (.format){
-       ret <- format_response(ret)
-     }
-   }
-   ret
- }
+GetParameterList <- function(.format = TRUE, .perform = TRUE) {
+  ret <- aquarius(operation = "GetParameterList")
+  handle_request(ret, .perform, .format, query = "/Parameters")
+}
 
 #' @describeIn publish-config Retrieve monitoring methods.
 #' @export
-GetMonitoringMethodList <- function(.format = TRUE, .perform = TRUE){
-   ret <- aquarius(operation = "GetMonitoringMethodList")
-   if (.perform) {
-     ret <- req_perform_aqts(ret)
-     if (.format){
-       ret <- format_response(ret, query = "/MonitoringMethods")
-     }
-   }
-   ret
- }
+GetMonitoringMethodList <- function(.format = TRUE, .perform = TRUE) {
+  ret <- aquarius(operation = "GetMonitoringMethodList")
+  if (.perform) {
+    ret <- req_perform_aqts(ret)
+    if (.format) {
+      ret <- format_response(ret, query = "/MonitoringMethods")
+    }
+  }
+  ret
+}
 
 #' @describeIn publish-config Retrieve units.
 #' @param GroupIdentifier Filter to a specific Unit Group.
 #' @export
-GetUnitList <- function(GroupIdentifier = NULL, .format = TRUE, .perform = TRUE){
+GetUnitList <- function(
+  GroupIdentifier = NULL,
+  .format = TRUE,
+  .perform = TRUE
+) {
   ret <- aquarius(GroupIdentifier = GroupIdentifier, operation = "GetUnitList")
-  if (.perform) {
-    ret <- req_perform_aqts(ret)
-    if (.format){
-      ret <- format_response(ret, query = "/Units")
-    }
-  }
-  ret
+  handle_request(ret, .perform, .format, query = "/Units")
 }
 
 #' @describeIn publish-config Retrieve approvals.
 #' @export
-GetApprovalList <- function(.format = TRUE, .perform = TRUE){
+GetApprovalList <- function(.format = TRUE, .perform = TRUE) {
   ret <- aquarius(operation = "GetApprovalList")
-  if (.perform) {
-    ret <- req_perform_aqts(ret)
-    if (.format){
-      ret <- format_response(ret, query = "/Approvals")
-    }
-  }
-  ret
+  handle_request(ret, .perform, .format, query = "/Approvals")
 }
 
 #' @describeIn publish-config Retrieve grades.
 #' @export
-GetGradeList <- function(.format = TRUE, .perform = TRUE){
+GetGradeList <- function(.format = TRUE, .perform = TRUE) {
   ret <- aquarius(operation = "GetGradeList")
-  if (.perform) {
-    ret <- req_perform_aqts(ret)
-    if (.format){
-      ret <- format_response(ret, query = "/Grades")
-    }
-  }
-  ret
+  handle_request(ret, .perform, .format, query = "/Grades")
 }
 
 #' @describeIn publish-config Retrieve qualifiers list.
 #' @export
-GetQualifierList <- function(.format = TRUE, .perform = TRUE){
-  path <- "GetQualifierList"
-  json_key <-
+GetQualifierList <- function(.format = TRUE, .perform = TRUE) {
   ret <- aquarius(operation = "GetQualifierList")
-  if (.perform) {
-    ret <- req_perform_aqts(ret)
-    if (.format){
-      ret <- format_response(ret, query = "/Qualifiers")
-    }
-  }
-  ret
+  handle_request(ret, .perform, .format, query = "/Qualifiers")
 }
 #' @export
 #' @describeIn publish-config tag applicability
 TagApplicability <- rlang::set_names(c(
-  "AppliesToLocations", "AppliesToLocationNotes", "AppliesToSensorsGauges",
-  "AppliesToAttachments", "AppliesToReports"
+  "AppliesToLocations",
+  "AppliesToLocationNotes",
+  "AppliesToSensorsGauges",
+  "AppliesToAttachments",
+  "AppliesToReports"
 ))
 
 #' @describeIn publish-config Retrieve tags
@@ -144,31 +131,19 @@ TagApplicability <- rlang::set_names(c(
 #' "AppliesToLocationNotes", "AppliesToSensorsGauges","AppliesToAttachements",
 #' "AppliesToReports"
 #' @export
-GetTagList <- function(Applicability = NULL, .format = TRUE, .perform = TRUE){
-  if(!is.null(Applicability)) {
+GetTagList <- function(Applicability = NULL, .format = TRUE, .perform = TRUE) {
+  if (!is.null(Applicability)) {
     Applicability <- rlang::arg_match(Applicability, TagApplicability)
   }
   ret <- aquarius(Applicability = Applicability, operation = "GetTagList")
-  if (.perform) {
-    ret <- req_perform_aqts(ret)
-    if (.format){
-      ret <- format_response(ret, "/Tags")
-    }
-  }
-  ret
+  handle_request(ret, .perform, .format, query = "/Tags")
 }
 
 #' @rdname publish-config
 #' @export
-GetActiveMetersAndCalibrations <- function(.format = TRUE, .perform = TRUE){
+GetActiveMetersAndCalibrations <- function(.format = TRUE, .perform = TRUE) {
   ret <- aquarius(operation = "GetActiveMetersAndCalibrations")
-  if (.perform) {
-    ret <- req_perform_aqts(ret)
-    if (.format){
-      ret <- format_response(ret, query = "/ActiveMeterDetails")
-    }
-  }
-  ret
+  handle_request(ret, .perform, .format, query = "/ActiveMeterDetails")
 }
 
 # Report List ------------------------------------------------------------------
@@ -178,25 +153,20 @@ GetActiveMetersAndCalibrations <- function(.format = TRUE, .perform = TRUE){
 #'
 #' @export
 GetReportList <- function(
-    LocationUniqueId = NULL,
-    TimeSeriesUniqueIds = NULL,
-    ReportTitle = NULL,
-    ...,
-    .format = TRUE,
-    .perform = TRUE
+  LocationUniqueId = NULL,
+  TimeSeriesUniqueIds = NULL,
+  ReportTitle = NULL,
+  ...,
+  .format = TRUE,
+  .perform = TRUE
 ) {
   ret <- aquarius(
     LocationUniqueId = LocationUniqueId,
     TimeSeriesUniqueIds = TimeSeriesUniqueIds,
     ReportTitle = ReportTitle,
-    operation = "GetReportList")
-  if (.perform) {
-    ret <- req_perform_aqts(ret)
-    if (.format){
-      ret <- format_response(ret, query = "/Reports")
-    }
-  }
-  ret
+    operation = "GetReportList"
+  )
+  handle_request(ret, .perform, .format, query = "/Reports")
 }
 
 # Location Requests ------------------------------------------------------------
@@ -210,23 +180,27 @@ NULL
 
 #' @rdname location-requests
 #' @export
-GetLocationDescriptionList <- function(LocationIdentifier = NULL, ..., .format = TRUE, .perform = TRUE){
-
-  ret <- aquarius(...,
+GetLocationDescriptionList <- function(
+  LocationIdentifier = NULL,
+  ...,
+  .format = TRUE,
+  .perform = TRUE
+) {
+  ret <- aquarius(
+    ...,
     LocationIdentifier = LocationIdentifier,
     operation = "GetLocationDescriptionList"
   )
-  if (.perform) {
-    ret <- req_perform_aqts(ret)
-    if (.format){
-      ret <- format_response(ret, query = "/LocationDescriptions")
-    }
-  }
-  ret
+  handle_request(ret, .perform, .format, query = "/LocationDescriptions")
 }
 #' @rdname location-requests
 #' @export
-GetLocationData <- function(LocationIdentifier, ..., .format = TRUE, .perform = TRUE){
+GetLocationData <- function(
+  LocationIdentifier,
+  ...,
+  .format = TRUE,
+  .perform = TRUE
+) {
   ret <- aquarius(
     LocationIdentifier = LocationIdentifier,
     operation = "GetLocationData",
@@ -234,7 +208,7 @@ GetLocationData <- function(LocationIdentifier, ..., .format = TRUE, .perform = 
   )
   if (.perform) {
     ret <- req_perform_aqts(ret)
-    if (.format){
+    if (.format) {
       ret <- format_response(ret)
     }
   }
@@ -252,13 +226,16 @@ NULL
 
 #' @rdname fieldvisit-requests
 #' @export
-GetFieldVisitDescriptionList <- function(...,
-    LocationIdentifier = NULL,
-    QueryFrom = NULL,
-    QueryTo = NULL,
-    .format = TRUE, .perform = TRUE
-){
-  ret <- aquarius(...,
+GetFieldVisitDescriptionList <- function(
+  ...,
+  LocationIdentifier = NULL,
+  QueryFrom = NULL,
+  QueryTo = NULL,
+  .format = TRUE,
+  .perform = TRUE
+) {
+  ret <- aquarius(
+    ...,
     LocationIdentifier = LocationIdentifier,
     QueryFrom = QueryFrom,
     QueryTo = QueryTo,
@@ -266,7 +243,7 @@ GetFieldVisitDescriptionList <- function(...,
   )
   if (.perform) {
     ret <- req_perform_aqts(ret)
-    if (.format){
+    if (.format) {
       ret <- format_response(ret, query = "/FieldVisitDescriptions")
     }
   }
@@ -275,15 +252,21 @@ GetFieldVisitDescriptionList <- function(...,
 
 #' @rdname fieldvisit-requests
 #' @export
-GetFieldVisitData <- function(FieldVisitIdentifier, ..., .format = TRUE, .perform = TRUE){
-  ret <- aquarius(...,
+GetFieldVisitData <- function(
+  FieldVisitIdentifier,
+  ...,
+  .format = TRUE,
+  .perform = TRUE
+) {
+  ret <- aquarius(
+    ...,
     FieldVisitIdentifier = FieldVisitIdentifier,
     operation = "GetFieldVisitData",
     class = "fvdata"
   )
   if (.perform) {
     ret <- req_perform_aqts(ret)
-    if (.format){
+    if (.format) {
       ret <- format_response(ret)
     }
   }
@@ -299,9 +282,12 @@ GetFieldVisitDataByLocation <- function(
   ...,
   .format = TRUE,
   .perform = TRUE
-){
-  if(!is.null(Activities)) {
-    Activities <- rlang::arg_match(Activities, c("Reading", "Inspection", "CalibrationCheck"))
+) {
+  if (!is.null(Activities)) {
+    Activities <- rlang::arg_match(
+      Activities,
+      c("Reading", "Inspection", "CalibrationCheck")
+    )
   }
   ret <- aquarius(
     ...,
@@ -313,7 +299,7 @@ GetFieldVisitDataByLocation <- function(
   )
   if (.perform) {
     ret <- req_perform_aqts(ret)
-    if (.format){
+    if (.format) {
       ret <- format_response(ret, "/FieldVisitData")
     }
   }
@@ -323,13 +309,15 @@ GetFieldVisitDataByLocation <- function(
 #' @rdname fieldvisit-requests
 #' @export
 GetFieldVisitReadingsByLocation <- function(
-    LocationIdentifier,
-    LocationUniqueId,
-    Parameters,
+  LocationIdentifier,
+  LocationUniqueId,
+  Parameters,
+  ...,
+  .format = TRUE,
+  .perform = TRUE
+) {
+  args <- rlang::list2(
     ...,
-    .format = TRUE,
-    .perform = TRUE){
-  args <- rlang::list2(...,
     LocationIdentifier = rlang::maybe_missing(LocationIdentifier),
     LocationUniqueId = rlang::maybe_missing(LocationUniqueId),
     Parameters = rlang::maybe_missing(Parameters)
@@ -339,7 +327,7 @@ GetFieldVisitReadingsByLocation <- function(
     req_url_query(!!!args)
   if (.perform) {
     ret <- new_aqts_response(httr2::req_perform(ret))
-    if (.format){
+    if (.format) {
       ret <- format_response(ret, "/FieldVisitReadings")
     }
   }
@@ -358,15 +346,22 @@ NULL
 
 #' @rdname ts-requests
 #' @export
-GetTimeSeriesUniqueIdList <- function(LocationIdentifier = NULL, Parameter = NULL, ..., .format = TRUE, .perform = TRUE){
-  ret <- aquarius(...,
+GetTimeSeriesUniqueIdList <- function(
+  LocationIdentifier = NULL,
+  Parameter = NULL,
+  ...,
+  .format = TRUE,
+  .perform = TRUE
+) {
+  ret <- aquarius(
+    ...,
     LocationIdentifier = LocationIdentifier,
     Parameter = Parameter,
     operation = "GetTimeSeriesUniqueIdList"
   )
   if (.perform) {
     ret <- req_perform_aqts(ret)
-    if (.format){
+    if (.format) {
       ret <- format_response(ret)
     }
   }
@@ -375,8 +370,15 @@ GetTimeSeriesUniqueIdList <- function(LocationIdentifier = NULL, Parameter = NUL
 
 #' @rdname ts-requests
 #' @export
-GetTimeSeriesDescriptionList <- function(LocationIdentifer = NULL, Parameter = NULL, ..., .format = TRUE, .perform = TRUE){
-  ret <- aquarius(...,
+GetTimeSeriesDescriptionList <- function(
+  LocationIdentifer = NULL,
+  Parameter = NULL,
+  ...,
+  .format = TRUE,
+  .perform = TRUE
+) {
+  ret <- aquarius(
+    ...,
     LocationIdentifier = LocationIdentifer,
     Parameter = Parameter,
     operation = "GetTimeSeriesDescriptionList",
@@ -384,7 +386,7 @@ GetTimeSeriesDescriptionList <- function(LocationIdentifer = NULL, Parameter = N
   )
   if (.perform) {
     ret <- req_perform_aqts(ret)
-    if (.format){
+    if (.format) {
       ret <- format_response(ret)
     }
   }
@@ -393,7 +395,11 @@ GetTimeSeriesDescriptionList <- function(LocationIdentifer = NULL, Parameter = N
 
 #' @rdname ts-requests
 #' @export
- GetTimeSeriesDescriptionListByUniqueId <- function(TimeSeriesUniqueIds, .format = TRUE, .perform = TRUE){
+GetTimeSeriesDescriptionListByUniqueId <- function(
+  TimeSeriesUniqueIds,
+  .format = TRUE,
+  .perform = TRUE
+) {
   ret <- aquarius(
     operation = "GetTimeSeriesDescriptionListByUniqueId",
     class = "tslist"
@@ -401,7 +407,7 @@ GetTimeSeriesDescriptionList <- function(LocationIdentifer = NULL, Parameter = N
     req_body_json(data = list(TimeSeriesUniqueIds = TimeSeriesUniqueIds))
   if (.perform) {
     ret <- req_perform_aqts(ret)
-    if (.format){
+    if (.format) {
       ret <- format_response(ret, "/TimeSeriesDescriptions")
     }
   }
@@ -410,19 +416,26 @@ GetTimeSeriesDescriptionList <- function(LocationIdentifer = NULL, Parameter = N
 
 #' @rdname ts-requests
 #' @export
-GetTimeSeriesData <- function(TimeSeriesUniqueIds, QueryFrom = NULL, QueryTo = NULL, ..., .format = TRUE, .perform = TRUE){
-  ret <- aquarius(...,
+GetTimeSeriesData <- function(
+  TimeSeriesUniqueIds,
+  QueryFrom = NULL,
+  QueryTo = NULL,
+  ...,
+  .format = TRUE,
+  .perform = TRUE
+) {
+  ret <- aquarius(
+    ...,
     TimeSeriesUniqueIds = TimeSeriesUniqueIds,
     QueryFrom = QueryFrom,
     QueryTo = QueryTo,
     operation = "GetTimeSeriesData",
     class = "tsdata",
     .multi = "explode"
-
   )
   if (.perform) {
     ret <- req_perform_aqts(ret)
-    if (.format){
+    if (.format) {
       ret <- format_response(ret)
     }
   }
@@ -431,16 +444,24 @@ GetTimeSeriesData <- function(TimeSeriesUniqueIds, QueryFrom = NULL, QueryTo = N
 
 #' @rdname ts-requests
 #' @export
-GetApprovalsTransactionList <- function(TimeSeriesUniqueId = NULL, QueryFrom, QueryTo, ..., .format = TRUE, .perform = TRUE){
-  ret <- aquarius(...,
+GetApprovalsTransactionList <- function(
+  TimeSeriesUniqueId = NULL,
+  QueryFrom,
+  QueryTo,
+  ...,
+  .format = TRUE,
+  .perform = TRUE
+) {
+  ret <- aquarius(
+    ...,
     TimeSeriesUniqueId = TimeSeriesUniqueId,
     QueryFrom = QueryFrom,
-    QueryTo   = QueryTo,
+    QueryTo = QueryTo,
     operation = "GetApprovalsTransactionList"
   )
   if (.perform) {
     ret <- req_perform_aqts(ret)
-    if (.format){
+    if (.format) {
       ret <- format_response(ret, "/ApprovalsTransactions")
     }
   }
@@ -450,15 +471,16 @@ GetApprovalsTransactionList <- function(TimeSeriesUniqueId = NULL, QueryFrom, Qu
 #' @rdname ts-requests
 #' @export
 GetTimeSeriesCorrectedData <- function(
-    TimeSeriesUniqueId,
-    QueryFrom,
-    QueryTo,
-    Unit,
+  TimeSeriesUniqueId,
+  QueryFrom,
+  QueryTo,
+  Unit,
+  ...,
+  .format = TRUE,
+  .perform = TRUE
+) {
+  args <- rlang::list2(
     ...,
-    .format = TRUE,
-    .perform = TRUE
-){
-  args <- rlang::list2(...,
     TimeSeriesUniqueId = TimeSeriesUniqueId,
     QueryFrom = rlang::maybe_missing(QueryFrom),
     QueryTo = rlang::maybe_missing(QueryTo),
@@ -467,7 +489,8 @@ GetTimeSeriesCorrectedData <- function(
   args <- Filter(Negate(rlang::is_missing), args)
   args <- tibble::as_tibble(args)
   do_request <- function(x) {
-    aquarius(operation = "GetTimeSeriesCorrectedData", class = "tsdatacorr") |> req_url_query(!!!x)
+    aquarius(operation = "GetTimeSeriesCorrectedData", class = "tsdatacorr") |>
+      req_url_query(!!!x)
   }
   ret <- args |>
     dplyr::mutate(.id = dplyr::row_number()) |>
@@ -481,7 +504,7 @@ GetTimeSeriesCorrectedData <- function(
     dplyr::pull(request)
   if (.perform) {
     ret <- req_perform_aqts(ret)
-    if (.format){
+    if (.format) {
       ret <- map(ret, format_response)
       ret <- dplyr::bind_rows(ret)
     }
@@ -492,22 +515,19 @@ GetTimeSeriesCorrectedData <- function(
 #' @rdname ts-requests
 #' @export
 GetMetadataChangeTransactionList <- function(
-    TimeSeriesUniqueId,
-    ...,
-    .perform = TRUE,
-    .format = TRUE
+  TimeSeriesUniqueId,
+  ...,
+  .perform = TRUE,
+  .format = TRUE
 ) {
-  args <- rlang::list2(...,
-    TimeSeriesUniqueId = TimeSeriesUniqueId
-  )
+  args <- rlang::list2(..., TimeSeriesUniqueId = TimeSeriesUniqueId)
   ret <- aquarius("GetMetadataChangeTransactionList") |>
     req_url_query(!!!args)
   if (.perform) {
     ret <- new_aqts_response(httr2::req_perform(ret))
-    if (.format){
+    if (.format) {
       ret <- format_response(ret, "/MetadataChangeTransactions")
     }
   }
   ret
 }
-
