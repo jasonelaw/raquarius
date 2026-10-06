@@ -10,7 +10,14 @@ NULL
 
 #' @rdname post-attachments
 #' @export
-aqPostReportAttachment <- function(File, LocationUniqueId, Title, type, ..., .perform = TRUE) {
+aqPostReportAttachment <- function(
+  File,
+  LocationUniqueId,
+  Title,
+  type,
+  ...,
+  .perform = TRUE
+) {
   ret <- aquarius(api = "acquisition") |>
     req_template("/locations/{LocationUniqueId}/attachments/reports") |>
     req_body_multipart(
@@ -38,7 +45,12 @@ aqDeleteReportAttachment <- function(ReportUniqueId, .perform = TRUE) {
 
 #' @rdname post-attachments
 #' @export
-aqPostLocationAttachment <- function(File, LocationUniqueId, ..., .perform = TRUE) {
+aqPostLocationAttachment <- function(
+  File,
+  LocationUniqueId,
+  ...,
+  .perform = TRUE
+) {
   ret <- aquarius(api = "acquisition") |>
     req_template("/locations/{LocationUniqueId}/attachments") |>
     req_body_multipart(
@@ -71,7 +83,8 @@ NULL
 aqAppendTimeseries <- function(UniqueId, Points, .perform = TRUE) {
   stopifnot(
     "Points must be a data.frame" = is.data.frame(Points),
-    "Points must have columns: Time, Value" = c("Time", "Value") %in% names(Points)
+    "Points must have columns: Time, Value" = c("Time", "Value") %in%
+      names(Points)
   )
   ret <- aquarius(api = "acquisition") |>
     req_template("/timeseries/{UniqueId}/append") |>
@@ -86,14 +99,22 @@ aqAppendTimeseries <- function(UniqueId, Points, .perform = TRUE) {
 
 #' @rdname append
 #' @export
-aqOverwriteAppendTimeseries <- function(UniqueId, Start, End, Points, open = TRUE, .perform = TRUE) {
+aqOverwriteAppendTimeseries <- function(
+  UniqueId,
+  Start,
+  End,
+  Points,
+  open = TRUE,
+  .perform = TRUE
+) {
   stopifnot(
     "Points must be a data.frame" = is.data.frame(Points),
-    "Points must have columns: Time, Value" = c("Time", "Value") %in% names(Points),
-    "Start and End must be `POSIXct` objects" =
-      lubridate::is.POSIXct(Start) & lubridate::is.POSIXct(End),
-    "The `open` argument must be a logical of length one" =
-      is.logical(open) & identical(length(open), 1L)
+    "Points must have columns: Time, Value" = c("Time", "Value") %in%
+      names(Points),
+    "Start and End must be `POSIXct` objects" = lubridate::is.POSIXct(Start) &
+      lubridate::is.POSIXct(End),
+    "The `open` argument must be a logical of length one" = is.logical(open) &
+      identical(length(open), 1L)
   )
   Start <- format_ISO8601(Start, usetz = TRUE)
   End <- format_ISO8601(End, usetz = TRUE)
@@ -104,7 +125,7 @@ aqOverwriteAppendTimeseries <- function(UniqueId, Start, End, Points, open = TRU
   }
   ret <- aquarius(api = "acquisition") |>
     req_template("/timeseries/{UniqueId}/overwriteappend") |>
-    req_body_json(list(TimeRange = TimeRange, Points = Points))
+    req_body_json(list(TimeRange = time_range, Points = Points))
   if (.perform) {
     ret <- req_perform_aqts(ret)
   }
@@ -113,9 +134,20 @@ aqOverwriteAppendTimeseries <- function(UniqueId, Start, End, Points, open = TRU
 
 #' @rdname append
 #' @export
-aqAppendReflectedTimeseries <- function(UniqueId, Start, End, Points, open = TRUE, .perform = TRUE) {
+aqAppendReflectedTimeseries <- function(
+  UniqueId,
+  Start,
+  End,
+  Points,
+  open = TRUE,
+  .perform = TRUE
+) {
   ret <- aqOverwriteAppendTimeseries(
-    UniqueId, Start, End, Points, open,
+    UniqueId,
+    Start,
+    End,
+    Points,
+    open,
     .perform = FALSE
   ) |>
     req_template("timeseries/{UniqueId}/reflected")
