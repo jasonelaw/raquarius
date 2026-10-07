@@ -150,6 +150,7 @@ aqAppendReflectedTimeseries <- function(
     open,
     .perform = FALSE
   ) |>
+    httr2::req_url_path("aquarius/acquisition/v2") |>
     req_template("timeseries/{UniqueId}/reflected")
   if (.perform) {
     ret <- req_perform_aqts(ret)
