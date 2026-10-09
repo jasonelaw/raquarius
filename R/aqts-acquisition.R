@@ -157,3 +157,11 @@ aqAppendReflectedTimeseries <- function(
   }
   ret
 }
+
+#' @rdname append
+#' @export
+aqAppendStatus <- function(AppendRequestId, .perform = TRUE) {
+  ret <- aquarius(api = "acquisition") |>
+    httr2::req_template("/timeseries/appendstatus/{AppendRequestId}")
+  handle_request(ret, .perform, FALSE)
+}
