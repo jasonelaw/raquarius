@@ -62,13 +62,19 @@ import(httr2)
 import(rlang)
 importFrom(dplyr,group_by)
 importFrom(jsonlite,fromJSON)
-importFrom(lubridate,format_ISO8601)
-importFrom(lubridate,ymd_hms)
+importFrom(lubridate,
+  format_ISO8601,
+  ymd_hms
+)
 importFrom(sf,st_read)
-importFrom(tibble,add_column)
-importFrom(tibble,as_tibble)
-importFrom(tibble,tibble)
-importFrom(tidyr,expand_grid)
-importFrom(tidyr,nest)
-importFrom(tidyr,pivot_longer)
-importFrom(tidyr,pivot_longer_spec)
+importFrom(tibble,
+  add_column,
+  as_tibble,
+  tibble
+)
+importFrom(tidyr,
+  expand_grid,
+  nest,
+  pivot_longer,
+  pivot_longer_spec
+)

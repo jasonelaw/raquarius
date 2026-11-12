@@ -7,7 +7,8 @@
 aquarius(
   ...,
   operation = NULL,
-  api = c("publish", "acquisition", "provisioning")
+  api = c("publish", "acquisition", "provisioning"),
+  .names = NULL
 )
 }
 \description{

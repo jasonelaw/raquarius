@@ -4,7 +4,7 @@
 \alias{prGetLocation}
 \title{Get a monitoring location}
 \usage{
-prGetLocation(unique_id, .perform = TRUE, .format = TRUE)
+prGetLocation(LocationUniqueId)
 }
 \description{
 Get a monitoring location

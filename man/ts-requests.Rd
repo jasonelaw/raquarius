@@ -39,7 +39,8 @@ GetTimeSeriesData(
   QueryTo = NULL,
   ...,
   .format = TRUE,
-  .perform = TRUE
+  .perform = TRUE,
+  .parallel = FALSE
 )
 
 GetApprovalsTransactionList(
@@ -58,7 +59,8 @@ GetTimeSeriesCorrectedData(
   Unit = NULL,
   ...,
   .format = TRUE,
-  .perform = TRUE
+  .perform = TRUE,
+  .parallel = FALSE
 )
 
 GetMetadataChangeTransactionList(
