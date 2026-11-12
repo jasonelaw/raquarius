@@ -29,9 +29,9 @@ GetFieldVisitDataByLocation(
 )
 
 GetFieldVisitReadingsByLocation(
-  LocationIdentifier,
-  LocationUniqueId,
-  Parameters,
+  LocationIdentifier = NULL,
+  LocationUniqueId = NULL,
+  Parameters = NULL,
   ...,
   .format = TRUE,
   .perform = TRUE

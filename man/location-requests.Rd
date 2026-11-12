@@ -13,7 +13,13 @@ GetLocationDescriptionList(
   .perform = TRUE
 )
 
-GetLocationData(LocationIdentifier, ..., .format = TRUE, .perform = TRUE)
+GetLocationData(
+  LocationIdentifier,
+  ...,
+  .format = TRUE,
+  .perform = TRUE,
+  .parallel = FALSE
+)
 }
 \arguments{
 \item{...}{pass query arguments to route. Please see Publish API documentation
