@@ -19,21 +19,6 @@ coerce_timestamps <- function(x) {
     )
 }
 
-rename_wp <- function(x) {
-  x |>
-    dplyr::rename_with(snakecase::to_snake_case) |>
-    dplyr::mutate(
-      dplyr::across(
-        dplyr::where(is.list),
-        \(x) setNames(x, snakecase::to_snake_case(names(x)))
-      ),
-      dplyr::across(
-        dplyr::where(is.data.frame),
-        \(x) dplyr::rename_with(x)
-      )
-    )
-}
-
 #' @export
 simd_parse <- function(x, ...) {
   UseMethod("simd_parse")
@@ -45,18 +30,8 @@ simd_parse.httr2_response <- function(x, ...) {
 }
 
 #' @export
-simd_parse.list <- function(x, ...) {
-  is_httr_resp <- all(map_lgl(x, \(x) inherits(x, "httr2_response")))
-  if (is_httr_resp) {
-    x <- map(x, httr2::resp_body_raw)
-  }
-  is_raw <- all(map_lgl(x, rlang::is_raw))
-  if (is_raw) {
-    x <- RcppSimdJson::fparse(x, ...)
-  } else {
-    rlang::abort("`x` must be a list of httr2_response objects or raw vectors")
-  }
-  x
+simd_parse.aqts_response <- function(x, ...) {
+  map(as.list(x), \(x) simd_parse(x, ...))
 }
 
 filter_null <- function(x) {
@@ -112,16 +87,180 @@ unnest_wider_namevalue <- function(
 
 # Aquarius Responses -----------------------------------------------------------
 #' @export
-format_response.aqts_response <- function(x, wrap = FALSE, ...) {
+format_response.aqts_response <- function(
+  x,
+  method = c("wider", "unnest"),
+  ...
+) {
+  method <- match.arg(method)
+  api <- attr(x, "api")
+  operation <- attr(x, "operation")
+
+  # Intercept any operations that require special handling - use helper
+  # function.
   ret <- simd_parse(x, ...)
-  if (wrap) {
-    ret <- list(ret)
+  ret <- tibble::tibble(response = ret) |>
+    dplyr::mutate(.request_id = names(response))
+  if (operation == "get_time_series_data") {
+    ret <- fmt_get_time_series_data(ret)
+  } else if (operation == "get_time_series_corrected_data") {
+    ret <- fmt_get_time_series_corrected_data(ret)
+  } else if (operation == "get_metadata_change_transaction_list") {
+    ret <- fmt_get_metadata_change_transaction_list(ret)
+  } else {
+    ret <- tidyr::unnest_wider(ret, response)
+
+    ret <- switch(
+      operation,
+      get_parameter_list = tidyr::unnest(ret, Parameters),
+      get_monitoring_method_list = tidyr::unnest(ret, MonitoringMethods),
+      get_unit_list = tidyr::unnest(ret, Units),
+      get_approval_list = tidyr::unnest(ret, Approvals),
+      get_grade_list = tidyr::unnest(ret, Grades),
+      get_tag_list = tidyr::unnest(ret, Tags),
+      get_active_meters_and_calibrations = tidyr::unnest(
+        ret,
+        ActiveMeterDetails
+      ),
+      get_report_list = tidyr::unnest(ret, Reports),
+      get_location_description_list = tidyr::unnest(ret, LocationDescriptions),
+      get_field_visit_description_list = tidyr::unnest(
+        ret,
+        FieldVisitDescriptions
+      ),
+      get_field_visit_data_by_location = ret |>
+        tidyr::unnest(FieldVisitData) |>
+        tidyr::unnest_wider(Approval) |>
+        tidyr::unnest_wider(InspectionActivity, names_sep = ""),
+      get_field_visit_readings_by_location = ret |>
+        tidyr::unnest(FieldVisitReadings) |>
+        tidyr::unnest_wider(Value) |>
+        tidyr::unnest_wider(Approval),
+      get_time_series_unique_id_list = ret |>
+        tidyr::unnest(TimeSeriesUniqueIds),
+      get_time_series_description_list = ret |>
+        tidyr::unnest(TimeSeriesDescriptions),
+      get_time_series_description_list_by_unique_id = ret |>
+        tidyr::unnest(TimeSeriesDescriptions),
+      get_approvals_transaction_list = tidyr::unnest(
+        ret,
+        ApprovalsTransactions
+      ),
+      ret
+    )
   }
-  ret <- tibble::tibble(
-    response = ret
-  ) |>
-    tidyr::unnest_wider(response)
+
+  status_vars <- c("ResponseVersion", "ResponseTime", "Summary", ".request_id")
+  ret <- ret |>
+    dplyr::relocate(
+      dplyr::any_of(status_vars),
+      .after = dplyr::everything()
+    ) |>
+    fmt_time()
   ret
+}
+
+fmt_get_time_series_data <- function(x) {
+  pivot_points <- function(x) {
+    if (is.data.frame(x)) {
+      x |>
+        tidyr::pivot_longer(
+          cols = -Timestamp,
+          names_to = c(".value", "ts"),
+          names_pattern = "([a-zA-Z]+)([0-9]{1,2})"
+        ) |>
+        dplyr::nest_by(ts, .key = "Points") |>
+        dplyr::ungroup() |>
+        dplyr::mutate(ts = as.integer(ts))
+    } else if (is.null(x)) {
+      NULL
+    } else {
+      stop("Unhandled cell type in list column in fmt_get_time_series_data")
+    }
+  }
+  ret <- x |>
+    tidyr::unnest_wider(
+      response,
+      strict = FALSE,
+      simplify = list(
+        TimeSeries = FALSE,
+        Points = FALSE,
+        ResponseVersion = TRUE,
+        Summary = TRUE
+      )
+    )
+  ts <-
+    list(
+      TimeSeries = purrr::list_rbind(
+        map(
+          setNames(ret$TimeSeries, ret$.request_id),
+          \(x) x |> dplyr::mutate(ts = 1:dplyr::n())
+        ),
+        names_to = ".request_id"
+      ),
+      Points = purrr::list_rbind(
+        map(setNames(ret$Points, ret$.request_id), pivot_points),
+        names_to = ".request_id"
+      )
+    )
+  if (nrow(ts$Points) > 0) {
+    ts <- dplyr::full_join(
+      ts$TimeSeries,
+      ts$Points,
+      by = c(".request_id", "ts")
+    )
+  } else {
+    ts <- ts$TimeSeries
+    ts$Points <- rep(list(NULL), nrow(ts))
+  }
+  ret <- ts |>
+    dplyr::full_join(
+      ret |>
+        dplyr::select(
+          TimeRange,
+          NumPoints,
+          ResponseVersion,
+          ResponseTime,
+          Summary,
+          .request_id
+        ),
+      by = ".request_id"
+    ) |>
+    tibble::as_tibble() # |>
+  #tidyr::unnest(Points)
+  ret
+}
+
+fmt_get_time_series_corrected_data <- function(x, ...) {
+  ret <- x |>
+    tidyr::unnest_wider(
+      response,
+      strict = FALSE,
+      simplify = list(
+        Approvals = FALSE,
+        Qualifiers = FALSE,
+        Methods = FALSE,
+        Grades = FALSE,
+        GapTolerances = FALSE,
+        InterpolationTypes = FALSE,
+        Notes = FALSE,
+        Points = FALSE,
+        ResponseVersion = TRUE,
+        Summary = TRUE
+      )
+    ) |>
+    tidyr::unnest_wider(TimeRange)
+  ret
+}
+
+fmt_get_metadata_change_transaction_list <- function(x) {
+  x |>
+    tidyr::unnest_wider(
+      response,
+      simplify = TRUE,
+      strict = FALSE
+    ) |>
+    tidyr::unnest(MetadataChangeTransactions)
 }
 
 #' @export
@@ -149,6 +288,7 @@ format_response.fvdata <- function(x, ...) {
 
 #' @export
 format_response.tslist <- function(x, ...) {
+  1
   resp <- resp_body_aqts(x, query = "/TimeSeriesDescriptions")
   resp
 }
@@ -204,4 +344,32 @@ format_response.tsdatacorr <- function(x, ...) {
       )
   }
   return(ret)
+}
+
+fmt_time <- function(x) {
+  time_probe <- c(
+    "StartTime",
+    "EndTime",
+    "ResponseTime",
+    "Date",
+    "LastModified"
+  )
+  one_cell <- function(x) {
+    dplyr::mutate(
+      x,
+      dplyr::across(
+        dplyr::contains(time_probe),
+        \(x) {
+          lubridate::ymd_hms(x, tz = Sys.timezone(), quiet = TRUE)
+        }
+      )
+    )
+  }
+
+  one_column <- function(x) {
+    purrr::map_if(x, is.data.frame, one_cell, .else = identity)
+  }
+
+  x[] <- purrr::map_if(x, is.list, one_column, .else = identity)
+  one_cell(x)
 }

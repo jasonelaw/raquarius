@@ -20,7 +20,7 @@ GetTimeSeriesUniqueIdList(
 )
 
 GetTimeSeriesDescriptionList(
-  LocationIdentifer = NULL,
+  LocationIdentifier = NULL,
   Parameter = NULL,
   ...,
   .format = TRUE,
@@ -44,8 +44,8 @@ GetTimeSeriesData(
 
 GetApprovalsTransactionList(
   TimeSeriesUniqueId = NULL,
-  QueryFrom,
-  QueryTo,
+  QueryFrom = NULL,
+  QueryTo = NULL,
   ...,
   .format = TRUE,
   .perform = TRUE
@@ -53,9 +53,9 @@ GetApprovalsTransactionList(
 
 GetTimeSeriesCorrectedData(
   TimeSeriesUniqueId,
-  QueryFrom,
-  QueryTo,
-  Unit,
+  QueryFrom = NULL,
+  QueryTo = NULL,
+  Unit = NULL,
   ...,
   .format = TRUE,
   .perform = TRUE
@@ -76,4 +76,16 @@ for available arguments.}
 }
 \description{
 These functions retrieve time series information.
+
+Gets time series data that is time aligned to the first time series in the
+request.
+}
+\details{
+This is one endpoint where wrapping vs not wrapping the TimeSeriesUniqueIds
+argument in a list() makes a very large difference. Passing
+TimeSeriesUniqueIds = list(1:5) vs TimeSeriesUniqueIds = 1:5 results in 1
+versus 5 requests. In the former, each of the ts ids 1:5 will be time aligned
+to ts=1 (the timestamps returned will only occur when ts=1 has values)
+whereas in the latter, each ts will be time aligned to itself (the timestamps
+will be returned whenever any of the timeseries have values).
 }

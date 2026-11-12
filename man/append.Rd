@@ -5,6 +5,7 @@
 \alias{aqAppendTimeseries}
 \alias{aqOverwriteAppendTimeseries}
 \alias{aqAppendReflectedTimeseries}
+\alias{aqAppendStatus}
 \title{Append Timeseries}
 \usage{
 aqAppendTimeseries(UniqueId, Points, .perform = TRUE)
@@ -26,6 +27,8 @@ aqAppendReflectedTimeseries(
   open = TRUE,
   .perform = TRUE
 )
+
+aqAppendStatus(AppendRequestId, .perform = TRUE)
 }
 \arguments{
 \item{UniqueId}{The guid of the timeseries}
